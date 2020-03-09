@@ -54,10 +54,19 @@ class   MovingBall {
   
   MovingBall() {
     location = new PVector(0,0,0);
-    velocity = new PVector(1,0,1);
+    velocity = new PVector(0,0,0);
   }
   
   void update() {
+    
+    PVector gravityForce = new PVector( 0, 0 , 0);
+    int gravityConstant = 10;
+    
+    gravityForce.x = sin(rotationX) * gravityConstant;
+    gravityForce.z = sin(rotationZ) * gravityConstant;
+    
+    velocity.add(gravityForce.div(1000));
+    
     location.add(velocity);
   }
   

@@ -94,10 +94,20 @@ class   MovingBall {
   }
   void checkEdges() {
     
-    if(location.x < -plateX/2 || location.x > plateX/2){
+    if(location.x < -plateX/2){
+      location.x = -plateX/2;
       velocity.x = -velocity.x;
     }
-    if(location.z < -plateZ/2 || location.z > plateZ/2){
+    if(location.x > plateX/2){
+      location.x = plateX/2;
+      velocity.x = -velocity.x;
+    }
+    if(location.z < -plateZ/2){ 
+      location.z = -plateZ/2;
+      velocity.z = -velocity.z;
+    }
+    if( location.z > plateZ/2){
+      location.z = plateZ/2;
       velocity.z = -velocity.z;
     }
     

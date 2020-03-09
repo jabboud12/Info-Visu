@@ -51,22 +51,33 @@ void draw() {
 class   MovingBall {
   PVector location;
   PVector velocity;
+  float mass; 
   
   MovingBall() {
     location = new PVector(0,0,0);
     velocity = new PVector(0,0,0);
+    mass = 100;
   }
   
   void update() {
     
+    // GravityForce
     PVector gravityForce = new PVector( 0, 0 , 0);
     int gravityConstant = 10;
-    
     gravityForce.x = sin(rotationX) * gravityConstant;
     gravityForce.z = sin(rotationZ) * gravityConstant;
     
-    velocity.add(gravityForce.div(1000));
-    
+    // FricctionForce
+    float normalForce = 1;
+    float mu = 0.01;
+    float frictionMagnitude = normalForce * mu;
+    PVector friction = velocity.copy();
+    friction.mult(-1);
+    friction.normalize();
+    friction.mult(frictionMagnitude);
+
+    // UpdateLocation
+    velocity.add(gravityForce.add(friction).div(mass));
     location.add(velocity);
   }
   

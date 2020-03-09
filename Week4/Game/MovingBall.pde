@@ -34,7 +34,7 @@ class   MovingBall {
     // GravityForce
     gravityForce.x = sin(rotationZ) * GRAVITY;
     gravityForce.z = sin(rotationX) * GRAVITY;
-    gravityForce.y = GRAVITY;
+    //gravityForce.y = GRAVITY;
 
     // FrictionForce
     float normalForce = 1;
@@ -44,11 +44,11 @@ class   MovingBall {
     friction.normalize();
     friction.mult(frictionMagnitude);
 
-    float v_y = velocity.y;
+    //float v_y = velocity.y;
 
     velocity.add(gravityForce.add(friction).div(mass));
 
-    velocity.y = v_y + gravityForce.y;
+    //velocity.y = v_y + gravityForce.y;
 
     // UpdateLocation
     location.add(velocity);
@@ -89,18 +89,18 @@ class   MovingBall {
       change = true;
     }
 
-    if (location.y > 0) {// || location.z > plateZ/2) 
-      velocity.y = -(velocity.y * elasticity); 
-      location.y =  0;
-      //change = true;
-    }
+    //if (location.y > 0) {// || location.z > plateZ/2) 
+    //  velocity.y = -(velocity.y * elasticity); 
+    //  location.y =  0;
+    //  //change = true;
+    //}
 
     if (change_ball_color) {
       if (change) {
         change = false;
-        red = random(255);
-        green = random(255);
-        blue = random(255);
+        //red = random(255);
+        //green = random(255);
+        //blue = random(255);
       }
     } else {
       red = redInit;

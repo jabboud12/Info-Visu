@@ -5,6 +5,9 @@ float y = 0;
 float speed = 1;
 boolean isMoving = false;
 MovingBall ball;
+float plateX = 300;
+float plateY = 10;
+float plateZ = 300;
 
 void settings() {
   size(500, 500, P3D);
@@ -28,10 +31,11 @@ void draw() {
     
     ball.update();
     ball.display();
+    ball.checkEdges();
   
     noStroke();
     fill(150, 150, 150);
-    box(300, 10, 300);
+    box(plateX, plateY, plateZ);
   
     drawAxis();
 
@@ -89,6 +93,16 @@ class   MovingBall {
     popMatrix();
   }
   void checkEdges() {
+    
+    if(location.x < -plateX/2 || location.x > plateX/2){
+      velocity.x = -velocity.x;
+    }
+    if(location.z < -plateZ/2 || location.z > plateZ/2){
+      velocity.z = -velocity.z;
+    }
+    
+    
+    
     
   }
 }

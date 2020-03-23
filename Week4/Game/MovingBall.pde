@@ -4,9 +4,9 @@ class   MovingBall {
   PVector gravityForce;
 
   private float red, blue, green;
-  private float redInit = 128;
-  private float greenInit = 48;
-  private float blueInit = 177;
+  private float redInit = 0xf1;
+  private float greenInit = 0xd6;
+  private float blueInit = 0xe7;
 
   boolean change = false;
 
@@ -98,9 +98,9 @@ class   MovingBall {
     if (change_ball_color) {
       if (change) {
         change = false;
-        //red = random(255);
-        //green = random(255);
-        //blue = random(255);
+        red = random(255);
+        green = random(255);
+        blue = random(255);
       }
     } else {
       red = redInit;

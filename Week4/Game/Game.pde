@@ -20,8 +20,9 @@ void setup() {
 }
 
 void draw() {
-  background(255);
-  lights();
+  background(229, 228, 223);
+  setLight();
+  //noLights();
 
   pushMatrix();
 
@@ -47,16 +48,13 @@ void draw() {
   drawInfo();
 }
 
-//void setLight() {
-//  point(width-10, height-10, width-10);
-//  directionalLight(200, 200, 200, -width, height, width);
-//  directionalLight(200, 200, 200, width, height, width);
-//  directionalLight(200, 200, 200, width, height, -width);
-//  directionalLight(200, 200, 200, -width, height, -width);
-
-//  ambientLight(180, 180, 180);
-//  ambient(70);
-//}
+void setLight() {
+  ambientLight(128, 128, 128);
+  directionalLight(128, 128, 128, 0,  0, -1);
+  lightFalloff(1, 0, 0);
+  lightSpecular(0, 0, 0);
+  pointLight(51, 102, 126, 35, 40, 36);
+}
 
 /*
   This method is used to rotate the board following the mouse's movements when pressed

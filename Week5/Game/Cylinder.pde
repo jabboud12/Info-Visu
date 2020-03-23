@@ -1,28 +1,30 @@
 
 
-void cylinderSetup(){
+void cylinderSetup() {
   ////setup for cylinder
   float angle;
   float[] x = new float[cylinderResolution + 1];
   float[] y = new float[cylinderResolution + 1];
+
   //get the x and y position on a circle for all the sides
   for (int i = 0; i < x.length; i++) {
     angle = (TWO_PI / cylinderResolution) * i;
     x[i] = sin(angle) * cylinderBaseSize;
     y[i] = cos(angle) * cylinderBaseSize;
   }
+
   openCylinder = createShape();
   openCylinder.beginShape(QUAD_STRIP);
+
   //draw the border of the cylinder
-  fill(random(255),random(255),random(255));
+  fill(random(255), random(255), random(255));
   for (int i = 0; i < x.length; i++) {
     openCylinder.vertex(x[i], y[i], 0);
     openCylinder.vertex(x[i], y[i], cylinderHeight);
   }
   openCylinder.endShape();
 
-
-
+  // Closing the cylinder
   cylinderBases = createShape();
   cylinderBases.beginShape(TRIANGLE_FAN);
   for (int i=0; i< x.length-1; ++i) {
@@ -40,5 +42,4 @@ void cylinderSetup(){
   }
   cylinderBases.endShape();
   ////end setup for cylinder
-  
 }

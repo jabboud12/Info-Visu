@@ -17,10 +17,10 @@ class   MovingBall {
 
   // Physical constants
   final float GRAVITY = 9.81;
-  final float mu = 1.1;
+  final float mu = 0.01;
   final float elasticity = 0.75;
 
-  PImage pattern; 
+  PImage pattern = loadImage("metal.jpg"); 
   PShape globe;
 
 
@@ -35,12 +35,10 @@ class   MovingBall {
     green = greenInit;
     blue = blueInit;
 
-    pattern = loadImage("metal.jpg");
-
     globe = createShape(SPHERE, ball_radius);
     globe.setStroke(false);
     globe.setTexture(pattern);
-    ;
+    
   }
 
   void update() {
@@ -56,24 +54,20 @@ class   MovingBall {
     friction.normalize();
     friction.mult(frictionMagnitude);
 
-
     velocity.add(gravityForce.add(friction).div(mass));
-
 
     // UpdateLocation
     location.add(velocity);
   }
 
-
   void display() {
-    fill(red, green, blue);
+    //fill(red, green, blue);
     pushMatrix();
-    translate(location.x, location.y - ball_radius - plateY/2, -location.z);
+      translate(location.x, location.y - ball_radius - plateY/2, -location.z);
+  
+      shape(globe);
 
-
-    shape(globe);
-
-    //sphere(ball_radius);
+      //sphere(ball_radius);
     popMatrix();
   }
 
@@ -120,9 +114,6 @@ class   MovingBall {
 
 
   void checkCylinderCollision() {
-
-
-
     //-cylinder.get(i).z twice because z is oriented int the wrong way
     for (int i = 0; i< cylinders.size(); ++i) {
       if (Math.pow(cylinders.get(i).x - location.x, 2) + Math.pow(-cylinders.get(i).z - location.z, 2)< (ball_radius+cylinderBaseSize)*(ball_radius+cylinderBaseSize)) {//fixme

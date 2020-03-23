@@ -24,7 +24,7 @@ ArrayList<PVector> cylinders = new ArrayList();
 
 
 //cylinder
-float cylinderBaseSize = 30;
+float cylinderBaseSize = 20;
 float cylinderHeight = 30;
 int cylinderResolution = 40;
 
@@ -32,77 +32,55 @@ PShape openCylinder = new PShape();
 PShape cylinderBases = new PShape();
 
 //translated mouse coordinates
-int mx, my;
-
-
+float mx, my;
 
 void settings() {
   size(800, 800, P3D);
 }
 
 void setup() {
-
-  
   ball = new MovingBall();
-
   cylinderSetup();
-  
 }
 
 void draw() {
-  mx = mouseX - width/2;
-  my = mouseY - height/2;
+  mx = mouseX - width/2.0;
+  my = mouseY - height/2.0;
 
   background(229, 228, 223);
 
   pushMatrix();
-  translate(width/2, height/2);
-
-  if (!shiftMode)
-    regularMode();
-  else
-    shiftMode();
+    translate(width/2, height/2);
+  
+    if (!shiftMode)
+      regularMode();
+    else
+      shiftMode();
   popMatrix();
 }
 
 void shiftMode() {
-
   lights();
   fill(126);
- 
+
   rect(-plateX/2, -plateZ/2, plateX, plateZ);
 
   for (int i = 0; i < cylinders.size(); ++i) {
     //shape(openCylinder, cylinders.get(i).x, cylinders.get(i).z); 
     shape(cylinderBases, cylinders.get(i).x, cylinders.get(i).z);
   }
-
-
-
-  //////////////////////////////////////translate(width/2, height/2);
-  //ball.display();
-
-  //  ////////////////////////////////////translate(width/2, height/2);
-
-
-  //rotateX(rotationX);
-  //rotateZ(rotationZ);
-
-
-
-  //MovingBall b = new MovingBall();
-  //b.location = new PVector(ball.location.x,0 , ball.location.y);
-  //b.display();
-
-
+  
+  // Showing the ball in shift mode
+  translate(ball.location.x, -ball.location.z);
+  sphere(ball.ball_radius);
 }
 
 void mousePressed() {
   //check if the position of the cylinder to add is on the plate and wouldn't cause overlap
   if (shiftMode && mx >  -plateX/2 && mx < plateX/2 &&  my > -plateZ/2 && my < plateZ/2 && placeIsFree(mx, my)) {
 
-    cylinders.add(new PVector(mx,0, my));
-    System.out.println("Cylinder added : " + new PVector(mx,0, my)); //fixme
+    cylinders.add(new PVector(mx, 0, my));
+    System.out.println("Cylinder added : " + new PVector(mx, 0, my)); //fixme
 
     System.out.println("add ");
   }
@@ -124,31 +102,29 @@ void regularMode() {
   setLight();
   pushMatrix();
 
-  rotateX(rotationX);
-  rotateZ(rotationZ);
-
-
-  noStroke();
-  fill(0xC0, 0xFF, 0xEE);
-
-  box(plateX, plateY, plateZ);
-
-
-  if (drawAxis)
-    drawAxis();  
-
-  ball.update();
-  ball.display();
-  ball.checkEdges();
-  ball.checkCylinderCollision();
-
-  rotateX(PI/2);
-
-  translate(0,0, plateY/2);
-  for (int i = 0; i < cylinders.size(); ++i) {
-    shape(openCylinder, cylinders.get(i).x, cylinders.get(i).z);
-    shape(cylinderBases, cylinders.get(i).x, cylinders.get(i).z); 
-  }
+    rotateX(rotationX);
+    rotateZ(rotationZ);
+  
+    noStroke();
+    fill(0xC0, 0xFF, 0xEE);
+  
+    box(plateX, plateY, plateZ);
+  
+    if (drawAxis)
+      drawAxis();  
+  
+    ball.update();
+    ball.display();
+    ball.checkEdges();
+    ball.checkCylinderCollision();
+  
+    rotateX(PI/2);
+  
+    translate(0, 0, plateY/2);
+    for (int i = 0; i < cylinders.size(); ++i) {
+      shape(openCylinder, cylinders.get(i).x, cylinders.get(i).z);
+      shape(cylinderBases, cylinders.get(i).x, cylinders.get(i).z);
+    }
 
   popMatrix();
   drawInfo();
@@ -165,10 +141,8 @@ void setLight() {
   //lights();
 }
 
-
-
 /*
-  This method is used to rotate the board following the mouse's movements when pressed
+  This method is used to rotate the board following the mouse's movements when dragged
  */
 void mouseDragged() {
 
@@ -211,14 +185,16 @@ void keyPressed() {
 
   if (keyCode == SHIFT) 
     shiftMode = true;
+
+  if (key == 'R' || key == 'r') {
+    reset();
+  }
 }
 
 void keyReleased() {
   if (keyCode == SHIFT) 
     shiftMode = false;
 }
-
-
 
 /*
   This method prints on the upper left corner of the window some information about the board
@@ -233,7 +209,6 @@ void drawInfo() {
   text("RotationZ : "+rotationZ, 50, 50 + 22);
   fill(0);
   text("Speed : "+speed, 50, 50 + 44);
-
 }
 
 
@@ -259,7 +234,13 @@ void drawAxis() {
   line(0, 0, -a, 0, 0, a);
   text("Z", 0, 0, a);
 
-
-
   noStroke();
+}
+
+void reset() {
+  ball = new MovingBall();
+  cylinders = new ArrayList();
+  rotationX = 0;
+  rotationZ = 0;
+  speed = 1;
 }

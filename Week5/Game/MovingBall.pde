@@ -23,8 +23,6 @@ class   MovingBall {
   PImage pattern = loadImage("metal.jpg"); 
   PShape globe;
 
-
-
   MovingBall() {
     location = new PVector(0, 0, 0);
     velocity = new PVector(0, 0, 0);
@@ -61,7 +59,7 @@ class   MovingBall {
   }
 
   void display() {
-    //fill(red, green, blue);
+    fill(red, green, blue);
     pushMatrix();
       translate(location.x, location.y - ball_radius - plateY/2, -location.z);
   

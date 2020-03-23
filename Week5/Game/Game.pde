@@ -50,12 +50,12 @@ void draw() {
   background(229, 228, 223);
 
   pushMatrix();
-    translate(width/2, height/2);
-  
-    if (!shiftMode)
-      regularMode();
-    else
-      shiftMode();
+  translate(width/2, height/2);
+
+  if (!shiftMode)
+    regularMode();
+  else
+    shiftMode();
   popMatrix();
 }
 
@@ -69,7 +69,7 @@ void shiftMode() {
     //shape(openCylinder, cylinders.get(i).x, cylinders.get(i).z); 
     shape(cylinderBases, cylinders.get(i).x, cylinders.get(i).z);
   }
-  
+
   // Showing the ball in shift mode
   translate(ball.location.x, -ball.location.z);
   sphere(ball.ball_radius);
@@ -89,42 +89,58 @@ void mousePressed() {
 boolean placeIsFree(float x, float y) {
   System.out.println("mx = "+ x +" my = "+y);
   System.out.println("mx = "+ x +" my = "+y);
-  ///                                              -ball,location.z because z axis is oriented in the wrong way
-  if (Math.pow(ball.location.x - x, 2) + Math.pow(-ball.location.z - y, 2) < (ball.ball_radius + cylinderBaseSize)* (ball.ball_radius + cylinderBaseSize)) return false;
+
+  float norm = vect_norm(ball.location.x - x, -ball.location.z - y);
+  if (norm < (ball.ball_radius + cylinderBaseSize) * (ball.ball_radius + cylinderBaseSize))
+    return false;
+    
+  // Cylinders should not spawn past border
+  if ((x - cylinderBaseSize < -plateX/2) || (x + cylinderBaseSize > plateX/2) || (y - cylinderBaseSize < -plateZ/2) || (y + cylinderBaseSize > plateZ/2))
+    return false;
 
   for (int i = 0; i < cylinders.size(); ++i) {
-    if ( Math.pow(cylinders.get(i).x - x, 2) + Math.pow(cylinders.get(i).z - y, 2)< (2*cylinderBaseSize)*(2*cylinderBaseSize)) return false;
+    norm = vect_norm(cylinders.get(i).x - x, cylinders.get(i).z - y);
+    if (norm < 4 * cylinderBaseSize * cylinderBaseSize)
+      return false;
   }
   return true;
+}
+
+float vect_norm(float ... x) {
+  float sum = 0;
+  for (int i = 0; i < x.length; ++i) {
+    sum += x[i] * x[i];
+  }
+  return sum;
 }
 
 void regularMode() {
   setLight();
   pushMatrix();
 
-    rotateX(rotationX);
-    rotateZ(rotationZ);
-  
-    noStroke();
-    fill(0xC0, 0xFF, 0xEE);
-  
-    box(plateX, plateY, plateZ);
-  
-    if (drawAxis)
-      drawAxis();  
-  
-    ball.update();
-    ball.display();
-    ball.checkEdges();
-    ball.checkCylinderCollision();
-  
-    rotateX(PI/2);
-  
-    translate(0, 0, plateY/2);
-    for (int i = 0; i < cylinders.size(); ++i) {
-      shape(openCylinder, cylinders.get(i).x, cylinders.get(i).z);
-      shape(cylinderBases, cylinders.get(i).x, cylinders.get(i).z);
-    }
+  rotateX(rotationX);
+  rotateZ(rotationZ);
+
+  noStroke();
+  fill(0xC0, 0xFF, 0xEE);
+
+  box(plateX, plateY, plateZ);
+
+  if (drawAxis)
+    drawAxis();  
+
+  ball.update();
+  ball.display();
+  ball.checkEdges();
+  ball.checkCylinderCollision();
+
+  rotateX(PI/2);
+
+  translate(0, 0, plateY/2);
+  for (int i = 0; i < cylinders.size(); ++i) {
+    shape(openCylinder, cylinders.get(i).x, cylinders.get(i).z);
+    shape(cylinderBases, cylinders.get(i).x, cylinders.get(i).z);
+  }
 
   popMatrix();
   drawInfo();

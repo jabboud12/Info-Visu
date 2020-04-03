@@ -86,25 +86,25 @@ class   MovingBall {
 
 // ---- CHECK EDGES ------------------------------------------------------
   void checkCollision(Plate plate) {
-    if (location.x < -plate.x/2) {// || location.x > plateX/2) 
+    if (location.x < -plate.x/2) {
       velocity.x = -(velocity.x * elasticity);
       location.x = -plate.x/2;
       change = true;
     }
 
-    if (location.x > plate.x/2) {// || location.x > plateX/2) 
+    if (location.x > plate.x/2) {
       velocity.x = -(velocity.x * elasticity);
       location.x = plate.x/2;
       change = true;
     }
 
-    if (location.z < -plate.z/2) {// || location.z > plateZ/2) 
+    if (location.z < -plate.z/2) {
       velocity.z = -(velocity.z * elasticity); 
       location.z = -plate.z/2;
       change = true;
     }
 
-    if (location.z > plate.z/2) {// || location.z > plateZ/2) 
+    if (location.z > plate.z/2) {
       velocity.z = -(velocity.z * elasticity); 
       location.z = plate.z/2;
       change = true;

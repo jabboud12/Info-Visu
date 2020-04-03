@@ -80,8 +80,7 @@ void regularMode() {
     ball.checkCollision(plate);
     ball.checkCollision(cylinders);
 
-    rotateX(PI/2);
-    translate(0, 0, plate.y/2); // why ???
+    rotateX(PI/2); // TODO : this is disgusting ! but we would ve to recheck all x y z parameters :/
 
     for (Cylinder c : cylinders) {
       c.draw();

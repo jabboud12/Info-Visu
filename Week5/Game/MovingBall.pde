@@ -125,6 +125,8 @@ class   MovingBall {
     }
   }
 
+
+  // TODO : fixme !
   void checkCollision(ArrayList<Cylinder> cylinders){
     for ( Cylinder c : cylinders) {
           if (Math.pow(c.x - location.x, 2) + Math.pow(-c.y - location.z, 2)< (ball_radius+c.cylinderBaseSize)*(ball_radius+c.cylinderBaseSize)) {//fixme
@@ -135,10 +137,6 @@ class   MovingBall {
           }
         }
   }
-
- 
-
-
 
 
 }

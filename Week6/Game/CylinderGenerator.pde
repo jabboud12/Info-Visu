@@ -2,7 +2,7 @@ class CylinderGenerator {
 
     ArrayList<Cylinder> cylinders;
 
-    // source position 
+    // source position is at cylinders.get(0)
     
 
     CylinderGenerator(){
@@ -15,6 +15,9 @@ class CylinderGenerator {
     }
 
     void draw(){
+
+        // TODO : draw the source on top of cylinders.get(0)
+
         for ( Cylinder c : cylinders)
             c.draw();
     }

@@ -5,7 +5,7 @@ final float elasticity = 0.75;
 
 
 class   MovingBall {
-  
+
   PVector location;
   PVector velocity;
   PVector gravityForce;
@@ -23,12 +23,17 @@ class   MovingBall {
   float mass; 
   float ball_radius;
 
+ //Ball rotation
+  float prevX =0;
+  float prevZ =0;
 
-  //PImage pattern = loadImage("metal.jpg"); 
-  //PShape globe;
 
 
-// ---- CONSTRUCTOR ------------------------------------------------------
+  PImage pattern = loadImage("stripes.jpg"); 
+  PShape globe;
+
+
+  // ---- CONSTRUCTOR ------------------------------------------------------
   MovingBall() {
     location = new PVector(0, 0, 0);
     velocity = new PVector(0, 0, 0);
@@ -39,27 +44,26 @@ class   MovingBall {
     green = greenInit;
     blue = blueInit;
 
-    //globe = createShape(SPHERE, ball_radius);
-    //globe.setStroke(false);
-    //globe.setTexture(pattern);
-  
+    globe = createShape(SPHERE, ball_radius);
+    globe.setStroke(false);
+    globe.setTexture(pattern);
   }
 
 
 
-// ---- DRAW -------------------------------------------------------------
+  // ---- DRAW -------------------------------------------------------------
   void draw() {
     fill(red, green, blue);
     pushMatrix();
-      translate(location.x, location.y - ball_radius - 2.5, -location.z);
-      //shape(globe);
-      sphere(ball_radius);
+    translate(location.x, location.y - ball_radius - 2.5, -location.z);
+    shape(globe);
+    //sphere(ball_radius);
     popMatrix();
   }
 
 
 
-// ---- UPDATE -----------------------------------------------------------
+  // ---- UPDATE -----------------------------------------------------------
   void update() {
     // GravityForce
     gravityForce.x = sin(rotationZ) * GRAVITY;
@@ -77,14 +81,25 @@ class   MovingBall {
 
     // UpdateLocation
     location.add(velocity);
-  }
+    
+    //Rotate ball
+    globe.rotateX((location.z-prevZ)/ball_radius);
+    prevZ = location.z;
+    globe.rotate((location.x-prevX)/ball_radius, 0, 0, 1);
+    prevX = location.x;
+    
+    
 
+  }
   
 
 
 
 
-// ---- CHECK EDGES ------------------------------------------------------
+
+
+
+  // ---- CHECK EDGES ------------------------------------------------------
   void checkCollision(Plate plate) {
     if (location.x < -plate.x/2) {
       velocity.x = -(velocity.x * elasticity);
@@ -127,15 +142,13 @@ class   MovingBall {
 
 
   // TODO : fixme !
-  void checkCollision(ArrayList<Cylinder> cylinders){
+  void checkCollision(ArrayList<Cylinder> cylinders) {
     for ( Cylinder c : cylinders) {
-          if ( c.isInside(this) ){ 
-            PVector n = new PVector(c.x - location.x, 0, -c.y - location.z).normalize(); //fixme
-            n = n.mult(2*velocity.dot(n));
-            velocity.sub(n);
-          } 
-        }
+      if ( c.isInside(this) ) { 
+        PVector n = new PVector(c.x - location.x, 0, -c.y - location.z).normalize(); //fixme
+        n = n.mult(2*velocity.dot(n));
+        velocity.sub(n);
+      }
+    }
   }
-
-
 }

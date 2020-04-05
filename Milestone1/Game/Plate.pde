@@ -3,9 +3,9 @@ class Plate {
 // plane settings
 
 
-float x = 300;
+float x = 400;
 float y = 5;
-float z = 300;
+float z = 400;
 
 
 void draw(){
@@ -51,7 +51,7 @@ void drawAxis() {
   // Z axis
   stroke(0, 0, 255);
   line(0, 0, -a, 0, 0, a);
-  text("Z", 0, 0, a);
+  text("Z", 0, 0, -a);
 
   noStroke();
 }

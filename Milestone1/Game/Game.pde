@@ -3,8 +3,10 @@ boolean drawAxis = false;
 boolean change_ball_color = false;
 boolean shiftMode = false;
 
-
-
+// Rotation speed limits
+float rot_speed_min = 0.2;
+float rot_speed_max = 10;
+float rot_increment_coef = 0.02;
 
 //translated mouse coordinates
 float mx, my;
@@ -26,6 +28,8 @@ void reset() {
   rotationX = 0;
   rotationZ = 0;
   speed = 1;
+  shiftMode = false;
+  drawAxis = false;
 }
 
 
@@ -48,13 +52,13 @@ void draw() {
   background(229, 228, 223);
 
   pushMatrix();
-    translate(width/2, height/2);
-    if (!shiftMode) 
-      regularMode();
-    else 
-      shiftMode();
-  popMatrix();
+  translate(width/2, height/2);
 
+  if (!shiftMode) 
+    regularMode();
+  else 
+  shiftMode();
+  popMatrix();
 }
 
 
@@ -68,27 +72,27 @@ void regularMode() {
 
   pushMatrix();
 
-    rotateX(rotationX);
-    rotateZ(rotationZ);
+  rotateX(rotationX);
+  rotateZ(rotationZ);
 
-    plate.draw();
+  plate.draw();
 
-    if (drawAxis)
-      plate.drawAxis();  
+  if (drawAxis)
+    plate.drawAxis();  
 
-    ball.update();
-    ball.draw();
-    ball.checkCollision(plate);
-    ball.checkCollision(generator.cylinders);
+  ball.update();
+  ball.draw();
+  ball.checkCollision(plate);
+  ball.checkCollision(generator.cylinders);
 
-    rotateX(PI/2);
+  rotateX(PI/2);
 
-    generator.draw();
-    generator.update(plate , ball);
+  generator.draw();
+  generator.update(plate, ball);
 
   popMatrix();
-
-  drawInfo(rotationX , rotationZ , speed);
+  
+  drawInfo();
 }
 
 
@@ -101,7 +105,7 @@ void shiftMode() {
 
   // Draw the cylinders
   generator.drawShitMode();
-  
+
 
   // Draw the ball
   translate(ball.location.x, -ball.location.z);
@@ -115,47 +119,46 @@ void shiftMode() {
 // ----EVENT HANDLERS ----------------------------------------------------
 
 
-void mousePressed() {
+void mouseReleased() {
 
-  if (shiftMode){
-    CylinderGenerator newGen = new CylinderGenerator(mx , my);
-    if(!newGen.isInside(ball) && plate.isInside(newGen))
+  if (shiftMode) {
+    CylinderGenerator newGen = new CylinderGenerator(mx, my);
+    if (!newGen.isInside(ball) && plate.isInside(newGen))
       generator = newGen;
   }
-    
 }
 
 
 //  This method is used to rotate the board following the mouse's movements when dragged
 void mouseDragged() {
 
-  float angle_limit = PI/3;
+  if (!shiftMode) {
+    float angle_limit = PI/3;
 
-  rotationX -= speed * (mouseY - pmouseY) / height;
-  rotationZ += speed * (mouseX - pmouseX) / width;
+    rotationX -= speed * (mouseY - pmouseY) / height;
+    rotationZ += speed * (mouseX - pmouseX) / width;
 
-  if (rotationZ > angle_limit)
-    rotationZ = angle_limit;
-  if (rotationZ < -angle_limit)
-    rotationZ = - angle_limit;
-  if (rotationX  > angle_limit)
-    rotationX = angle_limit;
-  if (rotationX < -angle_limit)
-    rotationX = - angle_limit;
+    if (rotationZ > angle_limit)
+      rotationZ = angle_limit;
+    if (rotationZ < -angle_limit)
+      rotationZ = - angle_limit;
+    if (rotationX  > angle_limit)
+      rotationX = angle_limit;
+    if (rotationX < -angle_limit)
+      rotationX = - angle_limit;
+  }
 }
 
 //  This method increments/decrements the rotation's speed of the board with the scrolling of the mouse
 void mouseWheel(MouseEvent e) {
-  float speed_threshold = 0.2;
-  float increment_coef = 0.05;
   float ev = e.getCount();
 
-  if (speed < -ev * increment_coef + speed_threshold) 
-    speed = speed_threshold;
+  if (speed + ev * rot_increment_coef < rot_speed_min) 
+    speed = rot_speed_min;
+  else if (speed + ev * rot_increment_coef > rot_speed_max) 
+    speed = rot_speed_max;
   else
-    speed += ev * increment_coef;
-
-  
+    speed += ev * rot_increment_coef;
 }
 
 
@@ -172,7 +175,6 @@ void keyPressed() {
 
   if (key == 'R' || key == 'r')
     reset();
-  
 }
 
 void keyReleased() {

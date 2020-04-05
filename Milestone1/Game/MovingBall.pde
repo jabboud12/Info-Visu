@@ -4,7 +4,7 @@ final float mu = 0.01;
 final float elasticity = 0.75;
 
 
-class   MovingBall {
+class MovingBall {
 
   PVector location;
   PVector velocity;
@@ -23,7 +23,7 @@ class   MovingBall {
   float mass; 
   float ball_radius;
 
- //Ball rotation
+  //Ball rotation
   float prevX =0;
   float prevZ =0;
 
@@ -81,23 +81,13 @@ class   MovingBall {
 
     // UpdateLocation
     location.add(velocity);
-    
+
     //Rotate ball
     globe.rotateX((location.z-prevZ)/ball_radius);
     prevZ = location.z;
     globe.rotate((location.x-prevX)/ball_radius, 0, 0, 1);
     prevX = location.x;
-    
-    
-
   }
-  
-
-
-
-
-
-
 
   // ---- CHECK EDGES ------------------------------------------------------
   void checkCollision(Plate plate) {

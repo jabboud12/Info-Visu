@@ -1,6 +1,6 @@
 class CylinderGenerator {
 
-  ArrayList<Cylinder> cylinders;
+  ArrayList<Cylinder> cylinders =  new ArrayList();
 
   // source position is at cylinders.get(0)
   //FIXME : put it in setup instead of here
@@ -33,9 +33,6 @@ class CylinderGenerator {
       float x0 = ball.location.x;
       float y0 = ball.location.y;
       theta = acos((ball.location.z - y)/ sqrt((x-x0)*(x-x0) + (y-y0)*(y-y0)));
-
-
-
 
 
       pushMatrix();

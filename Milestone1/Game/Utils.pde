@@ -1,13 +1,29 @@
-void drawInfo( float rotationX , float rotationZ , float speed) {
+void drawInfo() {
   noLights();
   translate(-width/2, -height/2);
-  textSize(20);
-  fill(255, 0, 0);
-  text("RotationX : "+rotationX, 50, 50);
-  fill(0, 0, 255);
-  text("RotationZ : "+rotationZ, 50, 50 + 22);
-  fill(0);
-  text("Speed : "+speed, 50, 50 + 44);
+  if (!drawAxis) {
+    textSize(20);
+    fill(150, 0, 0);
+    text("RotationX : "+rotationX, 50, 50);
+    fill(0, 0, 200);
+    text("RotationZ : "+rotationZ, 50, 50 + 22);
+    fill(0, 100, 0);
+    text("Speed : "+speed, 50, 50 + 44);
+    fill(0);
+    text("Press Enter to toggle debug mode", 50, 50 + 66);
+  } else {
+    textSize(12);
+    fill(0);
+    //strokeWeight(10);
+    text("RotationX: " + rotationX + "  RotationZ: " + rotationZ + "  Speed: " + speed, 10, 20);
+    text("Ball location: " + ball.location, 10, 32);
+    text("Ball velocity: " + ball.velocity, 10, 44);
+    if (generator.cylinders.size() != 0) {
+      text("Villain at: " + generator.cylinders.get(0).x + " " + -generator.cylinders.get(0).y, 10, 56);
+    } else {
+      text("No villain placed", 10, 56);
+    }
+  }
 }
 
 void setLight() {

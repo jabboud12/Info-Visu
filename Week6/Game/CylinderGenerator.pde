@@ -3,9 +3,10 @@ class CylinderGenerator {
   ArrayList<Cylinder> cylinders;
 
   // source position is at cylinders.get(0)
+  //FIXME : put it in setup instead of here
+
   PShape villain = loadShape("robotnik.obj");
 
-  //FIXME : put it in setup instead of here
   float theta;
 
 
@@ -21,7 +22,6 @@ class CylinderGenerator {
   float oldAngle=0;
   void draw() {
 
-    // TODO : draw the source on top of cylinders.get(0)
 
     for ( Cylinder c : cylinders)
       c.draw();
@@ -33,24 +33,30 @@ class CylinderGenerator {
       float x0 = ball.location.x;
       float y0 = ball.location.y;
       theta = acos((ball.location.z - y)/ sqrt((x-x0)*(x-x0) + (y-y0)*(y-y0)));
-      
-    //villain.rotateY( theta-oldAngle);
-    //oldAngle = theta;
-    
+
+
+
+
+
       pushMatrix();
       rotateX(PI/2);
       rotateY(PI);
 
+
       translate(-x, 30/*cylinder height*/, y);
       scale(25);       
       shape(villain, 0, 0);
+
+      //translate(x, -30/*cylinder height*/, -y);
+
+      //villain.rotateY( theta-oldAngle);
+      //oldAngle = theta;
       popMatrix();
-    }      
-
+    }
   }
-  
 
-  
+
+
 
 
   void drawShitMode() {

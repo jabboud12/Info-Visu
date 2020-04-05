@@ -1,5 +1,5 @@
 // simulation preferences
-boolean drawAxis = true;
+boolean drawAxis = false;
 boolean change_ball_color = false;
 boolean shiftMode = false;
 

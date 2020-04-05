@@ -1,0 +1,5 @@
+TODO:
+	•	Compléter / arranger le display des infos
+	•	Voir s’il est mieux d’utiliser mouseReleased() que mousePressed() pour placer Eggman
+	•	Méga bonus si possible (Eggman face à la balle)
+	•	Autre si rencontré

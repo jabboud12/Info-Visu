@@ -6,7 +6,7 @@ class CylinderGenerator {
   PShape villain = loadShape("robotnik.obj");
 
   //FIXME : put it in setup instead of here
-  float theta;
+  //float theta;
 
 
   CylinderGenerator() {
@@ -19,12 +19,12 @@ class CylinderGenerator {
   }
 
   float oldAngle=0;
-  void draw() {
+  void draw(PGraphics surface) {
 
     // TODO : draw the source on top of cylinders.get(0)
 
     for ( Cylinder c : cylinders)
-      c.draw();
+      c.draw(surface);
 
 
     if (cylinders.size() >0) {
@@ -32,30 +32,45 @@ class CylinderGenerator {
       float y = cylinders.get(0).y;
       float x0 = ball.location.x;
       float y0 = ball.location.y;
-      theta = acos((ball.location.z - y)/ sqrt((x-x0)*(x-x0) + (y-y0)*(y-y0)));
-      
-    //villain.rotateY( theta-oldAngle);
-    //oldAngle = theta;
-    
-      pushMatrix();
-      rotateX(PI/2);
-      rotateY(PI);
+      //theta = acos((ball.location.z - y)/ sqrt((x-x0)*(x-x0) + (y-y0)*(y-y0)));
 
-      translate(-x, 30/*cylinder height*/, y);
-      scale(25);       
-      shape(villain, 0, 0);
-      popMatrix();
-    }      
+      //villain.rotateY( theta-oldAngle);
+      //oldAngle = theta;
 
+      surface.pushMatrix();
+      surface.rotateX(PI/2);
+      surface.rotateY(PI);
+
+      surface.translate(-x, 30/*cylinder height*/, y);
+      surface.scale(25);       
+      surface.shape(villain, 0, 0);
+      surface.popMatrix();
+    }
   }
-  
 
-  
+  void drawPoints(PGraphics surface) {
+    float cylinderDim = 20*topViewDim*2/300;
+    surface.noStroke();
+    for ( Cylinder c : cylinders) {
+
+      //fix values
+      surface.fill(255);
+      surface.ellipse((c.x()+150)/300*topViewDim, (c.y()+150)/300*topViewDim, cylinderDim, cylinderDim);
+      //surface.noFill();
+    }
+    if (cylinders.size() >0) {
+      Cylinder villain = cylinders.get(0);
+      surface.fill(255, 0, 0);
+      surface.ellipse((villain.x()+150)/300*topViewDim, (villain.y()+150)/300*topViewDim, cylinderDim, cylinderDim);
+      surface.noFill();
+    }
+  }
 
 
-  void drawShitMode() {
+
+  void drawShitMode(PGraphics surface) {
     for ( Cylinder c : cylinders)
-      c.drawShitMode();
+      c.drawShitMode(surface);
   }
 
 
@@ -111,6 +126,7 @@ class CylinderGenerator {
       // TODO : i dont understant why it doesn t work wtith isInside uncommented ?
       if (plate.isInside(new_cylinder) /* && new_cylinder.isInside(ball)*/ && noCylinderCollision) {
         cylinders.add(new_cylinder);
+        decreaseScore();
         break;
       }
     }

@@ -4,7 +4,7 @@ final float mu = 0.01;
 final float elasticity = 0.75;
 
 
-class   MovingBall {
+class MovingBall {
 
   PVector location;
   PVector velocity;
@@ -18,12 +18,16 @@ class   MovingBall {
   private float blueInit = 0xe7;
   boolean change = false;
 
+  //score
+  boolean collision = false;
+
+
 
   // Ball characteristics
   float mass; 
   float ball_radius;
 
- //Ball rotation
+  //Ball rotation
   float prevX =0;
   float prevZ =0;
 
@@ -52,15 +56,23 @@ class   MovingBall {
 
 
   // ---- DRAW -------------------------------------------------------------
-  void draw() {
-    fill(red, green, blue);
-    pushMatrix();
-    translate(location.x, location.y - ball_radius - 2.5, -location.z);
-    shape(globe);
-    //sphere(ball_radius);
-    popMatrix();
+  void draw(PGraphics surface) {
+    surface.fill(red, green, blue);
+    surface.pushMatrix();
+    surface.translate(location.x, location.y - ball_radius - 2.5, -location.z);
+    surface.shape(globe);
+    //gameSurface.sphere(ball_radius);
+    surface.popMatrix();
   }
 
+
+  void drawBall(PGraphics surface) {
+    surface.fill(10, 0, 211);
+    surface.stroke(255, 0, 0);
+    surface.ellipse((location.x+150)/300*190, (-location.z+150)/300*190, ball_radius/300*190*2, ball_radius/300*190*2);
+    surface.noStroke();
+    surface.noFill();
+  }
 
 
   // ---- UPDATE -----------------------------------------------------------
@@ -81,17 +93,14 @@ class   MovingBall {
 
     // UpdateLocation
     location.add(velocity);
-    
+
     //Rotate ball
     globe.rotateX((location.z-prevZ)/ball_radius);
     prevZ = location.z;
     globe.rotate((location.x-prevX)/ball_radius, 0, 0, 1);
     prevX = location.x;
-    
-    
-
   }
-  
+
 
 
 
@@ -125,7 +134,6 @@ class   MovingBall {
       change = true;
     }
 
-
     if (change_ball_color) {
       if (change) {
         change = false;
@@ -139,6 +147,8 @@ class   MovingBall {
       blue = blueInit;
     }
   }
+  
+  float score(){return score;}
 
 
   // TODO : fixme !
@@ -148,6 +158,7 @@ class   MovingBall {
         PVector n = new PVector(c.x - location.x, 0, -c.y - location.z).normalize(); //fixme
         n = n.mult(2*velocity.dot(n));
         velocity.sub(n);
+        increaseScore(velocity.mag());
       }
     }
   }

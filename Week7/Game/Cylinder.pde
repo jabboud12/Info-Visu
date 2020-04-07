@@ -37,14 +37,17 @@ class Cylinder {
   }
 
 
-  void draw(){
-    shape(openCylinder, x, y);
-    shape(cylinderBases, x, y);
+  void draw(PGraphics surface){
+    surface.shape(openCylinder, x, y);
+    surface.shape(cylinderBases, x, y);
   }
 
-  void drawShitMode(){
-    shape(cylinderBases, x, y);
+  void drawShitMode(PGraphics surface){
+    surface.shape(cylinderBases, x, y);
   }
+  
+  float x(){return x;}
+  float y(){return y;}
 
 
 

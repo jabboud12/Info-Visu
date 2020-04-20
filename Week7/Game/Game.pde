@@ -80,7 +80,6 @@ void draw() {
   image(barChart, 2*topViewDim + 4*padding, height -bottomTab+padding);
   hs.update();
   hs.display();
-  
 }
 
 void drawBarChart(PGraphics surface) {
@@ -96,7 +95,7 @@ void drawBarChart(PGraphics surface) {
   for (int i = 0; i<points.size(); ++i) {
     for (int j= 0; j<abs(points.get(i)); ++j) {
       int k = (points.get(i)>0) ? -1 : 1;
-      //surface.rect(i*5*hs.getPos()*5, (topViewDim)/2 +5*hs.getPos()*5, 5*hs.getPos()*5, 5*hs.getPos()*5);
+      surface.rect(i*5*squareDim, (topViewDim)/2 +7.5*j*k, 5*squareDim, 7.5);
       surface.rect(i*5*squareDim, (topViewDim)/2 +7.5*j*k, 5*squareDim, 7.5);
     }
   }

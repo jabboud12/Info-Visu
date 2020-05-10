@@ -7,7 +7,7 @@ void settings() {
 }
 
 void setup() {
-  img = loadImage("board3.jpg");
+  img = loadImage("board1.jpg");
     //img = loadImage("BlobDetection_Test.png");
 
   //imgCheck = loadImage("board1Scharr_new.bmp");

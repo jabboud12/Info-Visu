@@ -37,14 +37,13 @@ void draw() {
   //thresholdBar1.update();
 
   //fixme: choose optimal parameters
-  //img2 = thresholdHSB(img2, 115, 135, 100, 255, 45, 100);     // color thresholding
   img2 = thresholdHSB(img2, 100, 200, 100, 255, 45, 100);     // color thresholding
   img2= convolute(img2);    // gaussian blur
 
   img2 = findConnectedComponents(img2, true);
 
-  //img2 = scharr(img2);     // edge detection
-  //img2 = threshold(img2, 100 ); // thresholding to keep only pixel with values>I, ex. I=100
+  img2 = scharr(img2);     // edge detection
+  img2 = threshold(img2, 100 ); // thresholding to keep only pixel with values>I, ex. I=100
   //image(img2, img.width, 0);
     image(img2, 0, 0);
 

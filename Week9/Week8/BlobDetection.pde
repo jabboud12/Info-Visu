@@ -37,15 +37,12 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest) {
   labelsEquivalences.add(s);
   int threshold = 100;
   int currentLabel = 1;
-
-
-
-  for (int i =0; i< input.width*input.height; ++i) 
-    labels[i] = 0;
+    
 
 
   for (int y = 1; y < input.height-1; ++y) {
     for (int x = 1; x < input.width-1; ++x) {
+      labels[y* input.width + x] = 0;
 
 
       if (brightness(input.pixels[y* input.width + x])  > threshold) {
@@ -89,9 +86,9 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest) {
   //if onlyBiggest==true, counts the number of pixels for each label
 
   int labelCount[] = new int[currentLabel+1];
-  for (int i = 0; i<labelCount.length; ++i) {
-      labelCount[i] = 0;
-    }
+  //for (int i = 0; i<labelCount.length; ++i) {
+  //    labelCount[i] = 0;
+  //  }
 
   for (int x = 0; x < input.width; ++x) {
     for (int y = 0; y < input.height; ++y) {
@@ -109,7 +106,7 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest) {
   int maxLabel = 1;
   if (onlyBiggest) {  
     for (int i = 1; i<labelCount.length; ++i) { //we don't take i = 0 because it is the background
-      println(labelCount[i]);
+      //println(labelCount[i]);
       if (labelCount[i]>labelCount[maxLabel]) maxLabel = i;
     }
   }

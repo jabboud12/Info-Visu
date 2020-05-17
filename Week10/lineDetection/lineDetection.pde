@@ -4,7 +4,7 @@ import java.util.TreeSet;
 
 PImage img, imgCheck;
 void settings() {
-  size(700, 500);
+  size(1100, 500);
 }
 
 void setup() {
@@ -33,11 +33,11 @@ void draw() {
 
 
 
-List<PVector> hough(PImage edgeImg) {
+List<PVector> hough(PImage edgeImg) throws Exception {
 
-    float discretizationStepsPhi = 0.01f; 
-    float discretizationStepsR = 1.5f; 
-    int minVotes=300; 
+    float discretizationStepsPhi = 0.02f; 
+    float discretizationStepsR = 2.5f; 
+    int minVotes=500; 
     
     // dimensions of the accumulator
     int phiDim = (int) (Math.PI / discretizationStepsPhi +1);
@@ -61,18 +61,32 @@ List<PVector> hough(PImage edgeImg) {
               
                 for(int phiStep = 0 ; phiStep < phiDim ; phiStep += 1) {
 
-                    float phi = phiStep ; // * discretizationStepsPhi;
+                    double phi = phiStep * discretizationStepsPhi ;
+                    if (phi < 0 || phi > Math.PI) throw new Exception("phi : "+phi+" not part of [0,PI]");
+                    
+                    double r = x * Math.cos(phi) + y * Math.sin(phi) ;
+                    r *= 1./discretizationStepsR;
+                    r += rDim / 2.; // center r
+                    if(r >= rDim || r < 0 ) throw new Exception("r : "+r+" not part of [0,"+rDim+"]");
 
-                    float r = ( x * (float)Math.cos(phi) + y * (float)Math.sin(phi) ) ;
-                    r /= discretizationStepsR;
-                    r += rDim / 2; // center r
-
-                    accumulator[(int)(phi * rDim + r)] += 1.;
+                    accumulator[(int)(phiStep * rDim + r)] += 1.;
                 }
                     
             }
         }
     }
+
+
+    // ------- DEBUG --> DISPLAY ACCUMULATOR
+      PImage houghImg = createImage(rDim, phiDim, ALPHA);
+      for (int i = 0; i < accumulator.length; i++) {
+        houghImg.pixels[i] = color(min(255, accumulator[i]));
+      }
+      // You may want to resize the accumulator to make it easier to see:
+      houghImg.resize(400, 400);
+      houghImg.updatePixels();
+      image(houghImg , edgeImg.width , 0 );
+    // -------
 
 
     ArrayList<PVector> lines=new ArrayList<PVector>();

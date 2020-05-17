@@ -37,7 +37,7 @@ List<PVector> hough(PImage edgeImg) {
 
     float discretizationStepsPhi = 0.01f; 
     float discretizationStepsR = 1.5f; 
-    int minVotes=1100; 
+    int minVotes=300; 
     
     // dimensions of the accumulator
     int phiDim = (int) (Math.PI / discretizationStepsPhi +1);
@@ -61,10 +61,10 @@ List<PVector> hough(PImage edgeImg) {
               
                 for(int phiStep = 0 ; phiStep < phiDim ; phiStep += 1) {
 
-                    float phi = phiStep * discretizationStepsPhi;
+                    float phi = phiStep ; // * discretizationStepsPhi;
 
                     float r = ( x * (float)Math.cos(phi) + y * (float)Math.sin(phi) ) ;
-                    r *= discretizationStepsR;
+                    r /= discretizationStepsR;
                     r += rDim / 2; // center r
 
                     accumulator[(int)(phi * rDim + r)] += 1.;

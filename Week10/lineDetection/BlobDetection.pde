@@ -87,7 +87,6 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest) {
       if (labelCount[i]>labelCount[maxLabel]) maxLabel = i;
     }
   }
-  println("maxLabel" + maxLabel);
 
 
 

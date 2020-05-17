@@ -2,35 +2,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-PImage img, imgCheck;
-void settings() {
-  size(1100, 500);
-}
-
-void setup() {
-  img = loadImage("hough_test.bmp");
-
-
-  noLoop(); // no interactive behaviour: draw() will be called only once.
-}
-
-void draw() {
-  PImage img2 = img.copy();//make a deep copy
-  img2.loadPixels();
-  img2.updatePixels();
-  image(img2 , 0 , 0);
-  
-
-  try {
-    draw_lines(hough(img2) , img2);
-  }catch (  Exception e){
-    e.printStackTrace();
-  }
-  
-}
-
-
-
 
 
 List<PVector> hough(PImage edgeImg) throws Exception {
@@ -78,6 +49,7 @@ List<PVector> hough(PImage edgeImg) throws Exception {
 
 
     // ------- DEBUG --> DISPLAY ACCUMULATOR
+    /*
       PImage houghImg = createImage(rDim, phiDim, ALPHA);
       for (int i = 0; i < accumulator.length; i++) {
         houghImg.pixels[i] = color(min(255, accumulator[i]));
@@ -86,6 +58,7 @@ List<PVector> hough(PImage edgeImg) throws Exception {
       houghImg.resize(400, 400);
       houghImg.updatePixels();
       image(houghImg , edgeImg.width , 0 );
+      */
     // -------
 
 
@@ -108,7 +81,7 @@ List<PVector> hough(PImage edgeImg) throws Exception {
 
 
 
-void draw_lines(List<PVector> lines , PImage edgeImg){
+void draw_lines(List<PVector> lines , int imageWidth){
   for (int idx = 0; idx < lines.size(); idx++) {
     PVector line=lines.get(idx);
     float r = line.x;
@@ -123,9 +96,9 @@ void draw_lines(List<PVector> lines , PImage edgeImg){
     int y0 = (int) (r / sin(phi));
     int x1 = (int) (r / cos(phi));
     int y1 = 0;
-    int x2 = edgeImg.width;
+    int x2 = imageWidth;
     int y2 = (int) (-cos(phi) / sin(phi) * x2 + r / sin(phi));
-    int y3 = edgeImg.width;
+    int y3 = imageWidth;
     int x3 = (int) (-(y3 - r / sin(phi)) * (sin(phi) / cos(phi)));
     // Finally, plot the lines
     stroke(204,102,0);

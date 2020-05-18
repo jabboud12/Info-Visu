@@ -9,7 +9,7 @@ Capture cam;
 
 
 void settings() {
-  size(640 * 2, 480);
+  size(640 * 2, 480 * 2);
 }
 
 
@@ -30,8 +30,8 @@ void setup() {
     cam.start();
   } 
   
-  thresholdBar = new HScrollbar(0, 580, 800, 20);
-  thresholdBar1 = new HScrollbar(0, 560, 800, 20);
+  thresholdBar = new HScrollbar(0, 20, 640 * 2 , 20);
+  thresholdBar1 = new HScrollbar(0, 40, 640 * 2 , 20);
 
   // noLoop();
 }
@@ -49,24 +49,34 @@ void draw() {
     img2.loadPixels();
     img2.updatePixels();
 
-    //thresholdBar.display();
-    //thresholdBar.update();
-    //thresholdBar1.display();
-    //thresholdBar1.update();
+
+    
 
     //fixme: choose optimal parameters
     img2 = thresholdHSB(img2, 100, 200, 100, 255, 45, 100);     // color thresholding
+    image(img2, 0, img2.height);
+    
     img2= convolute(img2);                                      // gaussian blur
 
     img2 = findConnectedComponents(img2, true);                 // blob detection
-
+    image(img2, img2.width, img2.height);
+    
     img2 = scharr(img2);                                        // edge detection
     img2 = threshold(img2, 100 );                               // Suppression of pixels with low brightness
 
 
     image(img2, 0, 0);
     image(img  , img2.width , 0);
-    draw_lines( hough(img2) , img2.width );                     // Hough transform (to get the lines)
+    draw_lines( hough(img2) , img2.width );                     // Hough transform (+ draw lines on canvas)
+
+
+
+
+
+    //thresholdBar.display();
+    //thresholdBar.update();
+    //thresholdBar1.display();
+    //thresholdBar1.update();
 
   } catch (Exception e ){
     e.printStackTrace();

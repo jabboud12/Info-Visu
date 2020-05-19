@@ -3,20 +3,25 @@ import java.util.Arrays;
 
 PImage img, board1, board2, board3, board4, nao, nao_blob, imgCheck;
 List<PImage> images;
-HScrollbar thresholdBar, thresholdBar1, thresholdBar2, thresholdBar3, thresholdBar4, thresholdBar5;
-boolean twoBlobs = false;
+//HScrollbar thresholdBar, thresholdBar1, thresholdBar2, thresholdBar3, thresholdBar4, thresholdBar5;
+
+final boolean twoBlobsMode = false;
+final int nBestLinesPaddingThreshold = 7;
+
 //---------------------------------------------------------------------For Windows-----------------------------------------------------------------------------------------------------------//
 //Capture cam;
 //---------------------------------------------------------------------For Windows-----------------------------------------------------------------------------------------------------------//
 
 //---------------------------------------------------------------------For Mac---------------------------------------------------------------------------------------------------------------//
-/**Mac workaround**/Movie cam;
+///**Mac workaround**/Movie cam;
+
 //---------------------------------------------------------------------For Mac---------------------------------------------------------------------------------------------------------------//
 
 
 
 void settings() {
-  size(640 * 2, 480 * 2);
+  size(400*3, 300);
+  //fullScreen();
 }
 
 
@@ -24,34 +29,29 @@ void settings() {
 void setup() {
   //--------------------------------------------------------------choose your fighter :-)------------------------------------------------------------------------------------------------------//
   //---------------------------------------------------------------------For Mac---------------------------------------------------------------------------------------------------------------//
-  ///**Mac workaround**/cam = new Movie(this, "a.mov");
-  ///**Mac workaround**/cam.loop();
+  ///**Mac workaround**/    cam = new Movie(this, "a.mov");
+  ///**Mac workaround**/    cam.loop();
+
   //---------------------------------------------------------------------For Mac---------------------------------------------------------------------------------------------------------------//
 
   //---------------------------------------------------------------------For Windows-----------------------------------------------------------------------------------------------------------//
 
-  //String[] cameras = Capture.list();
+  //  String[] cameras = Capture.list();
 
-  //if (cameras.length == 0) {
-  //  println("There are no cameras available for capture.");
-  //  exit();
-  //} else {
-  //  println("Available cameras:");
-  //  for (int i = 0; i < cameras.length; i++) 
-  //    println(cameras[i]);
+  //  if (cameras.length == 0) {
+  //    println("There are no cameras available for capture.");
+  //    exit();
+  //  } else {
+  //    println("Available cameras:");
+  //    for (int i = 0; i < cameras.length; i++) 
+  //      println(cameras[i]);
 
-  //  cam = new Capture(this, 640, 480, cameras[0]);
-  //  cam.start();
-  //} 
+  //    cam = new Capture(this, 640, 480, cameras[0]);
+  //    cam.start();
+
+  //}
+
   //---------------------------------------------------------------------For Windows-----------------------------------------------------------------------------------------------------------//
-
-
-  thresholdBar = new HScrollbar(0, 690, 640 * 2, 20, 47);
-  thresholdBar1 = new HScrollbar(0, 715, 640 * 2, 20, 155);
-  thresholdBar2 = new HScrollbar(0, 740, 640 * 2, 20, 100);
-  thresholdBar3 = new HScrollbar(0, 765, 640 * 2, 20, 255);
-  thresholdBar4 = new HScrollbar(0, 790, 640 * 2, 20, 28);
-  thresholdBar5 = new HScrollbar(0, 815, 640 * 2, 20, 168);
 
   board1 = loadImage("board1.jpg");
   board2 = loadImage("board2.jpg");
@@ -63,8 +63,10 @@ void setup() {
   PImage [] imagess = {board1, board2, board3, board4, nao, nao_blob};  
   images = Arrays.asList(imagess);
 
-  for (PImage img : images)
-    img.resize(640, 480);
+  for (PImage img : images) {
+    while (img.width> 700 || img.height>700)
+      img.resize(img.width/2, img.height/2);
+  }
 
   img = images.get(0);
 
@@ -73,104 +75,76 @@ void setup() {
 void draw() {
 
   try {
+    background(0);
 
     //if (cam.available() == true) 
     //  cam.read();
 
     //img = cam.get();
-    ///**Mac workaround**/img.resize(640,480);
+    ///**Mac workaround**/    img.resize(640, 480);
 
     PImage img2 = img.copy();
 
-    //PImage img2 = loadImage("board4.jpg");
-    //img2.resize(640,480);
     img2.loadPixels();
     img2.updatePixels();
 
-
-    //int minH = (int)(thresholdBar.getPos()*255);
-    //int maxH = (int)(thresholdBar1.getPos()*255);
-    //int minS = (int)(thresholdBar2.getPos()*255);
-    //int maxS = (int)(thresholdBar3.getPos()*255);
-    //int minB = (int)(thresholdBar4.getPos()*255);
-    //int maxB = (int)(thresholdBar5.getPos()*255);
-
     // Optimal for all
     int minH = 47;
-    int maxH = 155;
-    int minS = 100;
+    int maxH = 142;
+    int minS = 68;
     int maxS = 255;
     int minB = 28;
     int maxB = 168;
-    
+
     img2 = thresholdHSB(img2, minH, maxH, minS, maxS, minB, maxB);  // color thresholding
-    image(img2, 0 , img2.height);
     img2 = convolute(img2);                                      // gaussian blur     
-    img2 = findConnectedComponents(img2, true);                 // blob detection
-        image(img2, img2.width, img2.height);
-    img2 = scharr(img2);                                        // edge detection
-    //186
-    img2 = threshold(img2, 100);                               // Suppression of pixels with low brightness
-    image(img2, 0, 0);
+    PImage imgConnected = findConnectedComponents(img2, true);                 // blob detection
+    img2 = scharr(imgConnected);                                        // edge detection
+    PImage imgThresholded = threshold(img2, 100);                               // Suppression of pixels with low brightness
 
-    //if (twoBlobs) {
-    //  PImage img1 = img.copy();
-    //  img1 = thresholdHSB(img1, 20, 40, minS, maxS, minB, maxB);  // color thresholding
-    //  img1 = convolute(img1);                                      // gaussian blur     
-    //  img1 = findConnectedComponents(img1, true);                 // blob detection
-    //  image(img1, img.width, img.height);
-    //  img = scharr(img);                                        // edge detection
-    //  //img = threshold(img, 100 );                               // Suppression of pixels with low brightness
-    //  img1 = addImages(img2, img1, 10 );
-    //  image(img1, img.width, 0);
-    //}
-    List<PVector> hough = hough(img2);
-    image(img, img2.width, 0);
-
-    pushMatrix();
-    translate(img2.width, 0);
-    draw_lines(hough, img2.width );          // Hough transform (+ draw lines on canvas)
-
-    List<PVector> quad = findBestQuad(hough, img2.width, img2.height, img.height*img.width, 10000, true); 
-    stroke(255, 0, 0);
-    strokeWeight(10);
-    if (!quad.isEmpty()) {
-      println("printing quad");
-      for (int i = 0; i< quad.size()-1; ++i) {
-        line(quad.get(i).x, quad.get(i).y, quad.get(i+1).x, quad.get(i+1).y);
-        //println("x = " + quad.get(i).x + " y = " + quad.get(i).y);
-      }
-      line(quad.get(0).x, quad.get(0).y, quad.get(quad.size()-1).x, quad.get(quad.size()-1).y);
+    if (twoBlobsMode) {
+      PImage img1 = img.copy();
+      img1 = thresholdHSB(img1, 20, 40, minS, maxS, minB, maxB);  // color thresholding
+      img1 = convolute(img1);                                      // gaussian blur     
+      img1 = findConnectedComponents(img1, true);                 // blob detection
+      //image(img1, img.width, img.height);
+      img = scharr(img);                                        // edge detection
+      img = threshold(img, 100 );                               // Suppression of pixels with low brightness
+      img1 = addImages(img2, img1, 10 );
+      image(img1, img.width, 0);
     }
-    strokeWeight(1);
-    popMatrix();
+
+    List<PVector> quad = new ArrayList<PVector>();
+    int nBestLines = 1;
+    List<PVector> hough = hough(imgThresholded, 8*nBestLines);
+    
+    image(img, 0, 0);                        //draw original image
+    draw_lines(hough, img2.width );          // Hough transform (+ draw lines on canvas)
+    image(imgConnected, img2.width*2, 0);
+    image(imgThresholded, img2.width, 0);
+    
 
 
-    //thresholdBar.display();
-    //thresholdBar.update();
-    //thresholdBar1.display();
-    //thresholdBar1.update();
-    //thresholdBar2.display();
-    //thresholdBar2.update();
-    //thresholdBar3.display();
-    //thresholdBar3.update();
-    //thresholdBar4.display();
-    //thresholdBar4.update();
-    //thresholdBar5.display();
-    //thresholdBar5.update();
-    //fill(255,0,0);
-    //text("minH = " + minH, 20,680);
-    //text("maxH = " + maxH, 120,680);
-    //text("minS = " + minS, 220,680);
-    //text("maxS = " + maxS, 320,680);
-    //text("minB = " + minB, 420,680);
-    //text("maxB = " + maxB, 520,680);
+    do {
+      quad = findBestQuad(hough, img2.width, img2.height, (int)((img2.height*0.9)*(img2.width*0.9)), (int)((img2.height*0.3)*(img2.width*0.3)), false);
+      hough = hough(img2, 8*nBestLines);
+      ++nBestLines;
+    } while (quad.isEmpty() && nBestLines <nBestLinesPaddingThreshold);
+    
+    stroke(0);
+    //draw corner circles
+    for (int i = 0; i<quad.size(); ++i) {
+      fill(color((i%4) *255, (i-1%4) *255, (i-2%4) *255, 100));      
+      circle(quad.get(i).x, quad.get(i).y, 20);
+    }
   } 
   catch (Exception e ) {
     e.printStackTrace();
   }
 }
 
+
+// Used to iterate over the 6 images  
 void keyPressed() {
   switch (key) {
   case '1' : 

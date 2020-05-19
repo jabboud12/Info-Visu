@@ -14,7 +14,7 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest) {
   labelsEquivalences.add(s);
   int threshold = 100;
   int currentLabel = 1;
-    
+
 
 
   for (int y = 1; y < input.height-1; ++y) {
@@ -28,9 +28,11 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest) {
 
         for (int i=-1; i<2; ++i) {
           for (int j = -1; j<2; ++j) {
-            if (brightness(input.pixels[(y+j) * input.width + x + i ])>=threshold && labels[(y+j) * input.width + x + i]!=0) {
-              neighbors.add(labels[((y+j)* input.width + x + i)]);
-            }
+            //if (((y+j) * input.width + x + i >=0) && ((y+j) * input.width + x + i < input.height*input.width)) {
+              if (brightness(input.pixels[(y+j) * input.width + x + i ])>=threshold && labels[(y+j) * input.width + x + i]!=0) {
+                neighbors.add(labels[((y+j)* input.width + x + i)]);
+              }
+            //}
           }
         }
 
@@ -69,7 +71,7 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest) {
 
   for (int x = 0; x < input.width; ++x) {
     for (int y = 0; y < input.height; ++y) {
-      
+
       int label = labelsEquivalences.get(labels[y* input.width + x]).first();
       labels[y* input.width + x] = label;
       if (onlyBiggest)
@@ -77,7 +79,7 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest) {
     }
   }
 
- 
+
   // if onlyBiggest==false, output an image with each blob colored in one uniform color
   // if onlyBiggest==true, output an image with the biggest blob in white and others in black
   int maxLabel = 1;
@@ -112,7 +114,7 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest) {
       }
     }
   }
- 
-  
+
+
   return res;
 }

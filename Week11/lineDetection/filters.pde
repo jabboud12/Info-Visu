@@ -1,11 +1,3 @@
-
-
-
-
-
-
-
-
 PImage toHueMap(PImage img, float threshold1, float threshold2) {
   PImage result = createImage(img.width, img.height, HSB);
   result = img.copy();
@@ -14,7 +6,7 @@ PImage toHueMap(PImage img, float threshold1, float threshold2) {
   for (int i = 0; i < img.width * img.height; i++) {
     if (!(hue(img.pixels[i]) >= threshold1 && hue(img.pixels[i]) <= threshold2)) {
       result.pixels[i] = 0;
-    } else{
+    } else {
       result.pixels[i] = color(255);
     }
   }
@@ -33,6 +25,45 @@ PImage thresholdHSB(PImage img, int minH, int maxH, int minS, int maxS, int minB
       result.pixels[i]=0;
     } else {
       result.pixels[i] = color(255);
+    }
+  }
+
+  return result;
+}
+
+PImage doubleThresholdHSB(PImage img, int minH0, int maxH0, int minH1, int maxH1, int minS, int maxS, int minB, int maxB) {
+  PImage result = createImage(img.width, img.height, HSB);
+  result = img.copy();
+
+
+
+  for (int i = 0; i < img.width * img.height; i++) {
+    if (!(((hue(img.pixels[i]) >= minH0 && hue(img.pixels[i]) <= maxH0) || (hue(img.pixels[i]) >= minH1 && hue(img.pixels[i]) <= maxH1)) && saturation(img.pixels[i]) >= minS && saturation(img.pixels[i]) <= maxS 
+      && brightness(img.pixels[i]) >= minB && brightness(img.pixels[i]) <= maxB)) {
+      result.pixels[i]=0;
+    } else {
+      //result.pixels[i] = color(255);
+    }
+  }
+
+  return result;
+}
+
+PImage addImages(PImage img0, PImage img1, int brightnessThreshold ) {
+  PImage result = createImage(img.width, img.height, HSB);
+  for (int i = 0; i < img0.width * img0.height; i++) {
+    if (brightness(img0.pixels[i]) >brightnessThreshold && brightness(img1.pixels[i]) <=brightnessThreshold) {
+      //result.pixels[i] = img0.pixels[i];
+      result.pixels[i] = color(0,255,0);
+    } else if (brightness(img0.pixels[i]) <=brightnessThreshold && brightness(img1.pixels[i]) >brightnessThreshold) {
+      //result.pixels[i] = img1.pixels[i];
+      result.pixels[i] = color(255,255,0);
+
+    } else if (brightness(img0.pixels[i]) >brightnessThreshold && brightness(img1.pixels[i]) >brightnessThreshold) {
+      //result.pixels[i] = img0.pixels[i];
+      result.pixels[i] = color(0,255,0);
+    } else {
+      result.pixels[i]= color(0);
     }
   }
 

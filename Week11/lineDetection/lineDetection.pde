@@ -12,7 +12,7 @@ List<PVector> hough(PImage edgeImg) throws Exception {
     float discretizationStepsPhi = 0.02f; 
     float discretizationStepsR = 2.5f; 
     //int minVotes=500;
-    int minVotes = 150;
+    int minVotes = 200;
     // define region size
     int regionSize = 10;
     
@@ -24,6 +24,20 @@ List<PVector> hough(PImage edgeImg) throws Exception {
     edgeImg.height*edgeImg.height) * 2) / discretizationStepsR +1);
     // our accumulator
     int[] accumulator = new int[phiDim * rDim];
+    
+    
+    // pre-compute the sin and cos values
+    float[] tabSin = new float[phiDim]; 
+    float[] tabCos = new float[phiDim];
+    float ang = 0;
+    float inverseR = 1.f / discretizationStepsR;
+    for (int accPhi = 0; accPhi < phiDim; ang += discretizationStepsPhi, accPhi++) {
+      // we can also pre-multiply by (1/discretizationStepsR) since we need it in the Hough loop 
+      tabSin[accPhi] = (float) (Math.sin(ang) * inverseR);
+      tabCos[accPhi] = (float) (Math.cos(ang) * inverseR);
+    }
+    
+    
     // Fill the accumulator: on edge points (ie, white pixels of the edge
     // image), store all possible (r, phi) pairs describing lines going
     // through the point.
@@ -42,8 +56,9 @@ List<PVector> hough(PImage edgeImg) throws Exception {
                     double phi = phiStep * discretizationStepsPhi ;
                     if (phi < 0 || phi > Math.PI) throw new Exception("phi : "+phi+" not part of [0,PI]");
                     
-                    double r = x * Math.cos(phi) + y * Math.sin(phi) ;
-                    r *= 1./discretizationStepsR;
+                    //double r = x * Math.cos(phi) + y * Math.sin(phi) ;
+                    //r *= 1./discretizationStepsR;
+                    double r = x * tabCos[phiStep] + y * tabSin[phiStep] ;
                     r += rDim / 2.; // center r
                     if(r >= rDim || r < 0 ) throw new Exception("r : "+r+" not part of [0,"+rDim+"]");
 
@@ -57,14 +72,14 @@ List<PVector> hough(PImage edgeImg) throws Exception {
 
     // ------- DEBUG --> DISPLAY ACCUMULATOR
     
-      PImage houghImg = createImage(rDim, phiDim, ALPHA);
-      for (int i = 0; i < accumulator.length; i++) {
-        houghImg.pixels[i] = color(min(255, accumulator[i]));
-      }
-      // You may want to resize the accumulator to make it easier to see:
-      houghImg.resize(400, 400);
-      houghImg.updatePixels();
-      image(houghImg , edgeImg.width , 0 );
+      //PImage houghImg = createImage(rDim, phiDim, ALPHA);
+      //for (int i = 0; i < accumulator.length; i++) {
+      //  houghImg.pixels[i] = color(min(255, accumulator[i]));
+      //}
+      //// You may want to resize the accumulator to make it easier to see:
+      //houghImg.resize(400, 400);
+      //houghImg.updatePixels();
+      //image(houghImg , edgeImg.width , 0 );
       
     // -------
 

@@ -2,11 +2,15 @@ import processing.video.*;
 import java.util.Arrays;
 
 PImage img, board1, board2, board3, board4, nao, nao_blob, imgCheck;
+final int Width = 1500;
+final int Height = 500;
 List<PImage> images;
+int imageIndex;
 //HScrollbar thresholdBar, thresholdBar1, thresholdBar2, thresholdBar3, thresholdBar4, thresholdBar5;
 
 final boolean twoBlobsMode = false;
 final int nBestLinesPaddingThreshold = 7;
+
 
 //---------------------------------------------------------------------For Windows-----------------------------------------------------------------------------------------------------------//
 //Capture cam;
@@ -20,8 +24,10 @@ final int nBestLinesPaddingThreshold = 7;
 
 
 void settings() {
-  size(400*3, 300);
+  size(Width, Height);
   //fullScreen();
+  if (surface != null)
+    surface.setResizable(true);
 }
 
 
@@ -67,8 +73,9 @@ void setup() {
     while (img.width> 700 || img.height>700)
       img.resize(img.width/2, img.height/2);
   }
-
-  img = images.get(0);
+  imageIndex = 0;
+  img = images.get(imageIndex);
+  surface.setSize(img.width * 3,img.height);
 
   //noLoop();
 }
@@ -117,12 +124,15 @@ void draw() {
     List<PVector> quad = new ArrayList<PVector>();
     int nBestLines = 1;
     List<PVector> hough = hough(imgThresholded, 8*nBestLines);
-    
+
     image(img, 0, 0);                        //draw original image
-    draw_lines(hough, img2.width );          // Hough transform (+ draw lines on canvas)
+    draw_lines(hough, img2.width, img2.height);          // Hough transform (+ draw lines on canvas)
+    PImage cropped = get(0, 0, img2.width, img2.height);
+    background(0);
+    image(cropped, 0, 0);
     image(imgConnected, img2.width*2, 0);
     image(imgThresholded, img2.width, 0);
-    
+
 
 
     do {
@@ -130,7 +140,7 @@ void draw() {
       hough = hough(img2, 8*nBestLines);
       ++nBestLines;
     } while (quad.isEmpty() && nBestLines <nBestLinesPaddingThreshold);
-    
+
     stroke(0);
     //draw corner circles
     for (int i = 0; i<quad.size(); ++i) {
@@ -146,26 +156,43 @@ void draw() {
 
 // Used to iterate over the 6 images  
 void keyPressed() {
+  if (key == CODED) {
+    if (keyCode == LEFT && imageIndex > 0) {
+      imageIndex--;
+    } else if (keyCode == RIGHT && imageIndex < 5) {
+      imageIndex++;
+    }
+  }
   switch (key) {
   case '1' : 
-    img = images.get(0);
+    imageIndex = 0;
     break;
   case '2' : 
-    img = images.get(1);
+    imageIndex = 1;
     break;
   case '3' : 
-    img = images.get(2);
+    imageIndex = 2;
     break;
   case '4' : 
-    img = images.get(3);
+    imageIndex = 3;
     break;
   case '5' : 
-    img = images.get(4);
+    imageIndex = 4;
     break;
   case '6' : 
-    img = images.get(5);
+    imageIndex = 5;
     break;
   default : 
     break;
   }
+
+  img = images.get(imageIndex);
+  double newWidth = img.width * 3.0;
+  double newImgHeight = img.height;
+  while(newWidth > Width) {    
+    newWidth *= 0.95;
+    newImgHeight *= 0.95;
+  }
+  surface.setSize(img.width * 3,img.height);
+  img.resize((int) (newWidth/3), (int) newImgHeight);
 }

@@ -131,33 +131,32 @@ boolean checkMaxNeighbor(int[] accumulator, int idx, int regionSize, int phiDim)
 
 
 
-void draw_lines(List<PVector> lines, int imageWidth) {
+void draw_lines(List<PVector> lines, int imageWidth, int imageHeight) {
+  int x0 = 0;
+  int y1 = 0;
+  int x2 = imageWidth;
+  int y3 = imageWidth;
   for (int idx = 0; idx < lines.size(); idx++) {
     PVector line=lines.get(idx);
     float r = line.x;
     float phi = line.y;
+    println("r = " + r + "phi = " + phi);
     // Cartesian equation of a line: y = ax + b
     // in polar, y = (-cos(phi)/sin(phi))x + (r/sin(phi))
     // => y = 0 : x = r / cos(phi)
     // => x = 0 : y = r / sin(phi)
     // compute the intersection of this line with the 4 borders of
     // the image
-    int x0 = 0;
+    
     int y0 = (int) (r / sin(phi));
     int x1 = (int) (r / cos(phi));
-    int y1 = 0;
-    int x2 = imageWidth;
     int y2 = (int) (-cos(phi) / sin(phi) * x2 + r / sin(phi));
-    int y3 = imageWidth;
     int x3 = (int) (-(y3 - r / sin(phi)) * (sin(phi) / cos(phi)));
 
     println("x0 = " + x0 + " y0 = " + y0);
     println("x1 = " + x1 + " y1 = " + y1);
     println("x2 = " + x2 + " y2 = " + y2);
     println("x3 = " + x3 + " y3 = " + y3);
-
-
-
 
     // Finally, plot the lines
     stroke(204, 102, 0);
@@ -172,7 +171,7 @@ void draw_lines(List<PVector> lines, int imageWidth) {
       if (x1 > 0) {
         if (y2 > 0)
           line(x1, y1, x2, y2);
-        else
+        else 
           line(x1, y1, x3, y3);
       } else
         line(x2, y2, x3, y3);

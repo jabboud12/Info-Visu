@@ -8,12 +8,13 @@ List<PImage> images;
 int imageIndex;
 //HScrollbar thresholdBar, thresholdBar1, thresholdBar2, thresholdBar3, thresholdBar4, thresholdBar5;
 
-final boolean twoBlobsMode = false;
+boolean twoBlobsMode = false;
+boolean help = false;
 final int nBestLinesPaddingThreshold = 7;
 
 
 //---------------------------------------------------------------------For Windows-----------------------------------------------------------------------------------------------------------//
-//Capture cam;
+Capture cam;
 //---------------------------------------------------------------------For Windows-----------------------------------------------------------------------------------------------------------//
 
 //---------------------------------------------------------------------For Mac---------------------------------------------------------------------------------------------------------------//
@@ -42,19 +43,18 @@ void setup() {
 
   //---------------------------------------------------------------------For Windows-----------------------------------------------------------------------------------------------------------//
 
-  //  String[] cameras = Capture.list();
+  //String[] cameras = Capture.list();
 
-  //  if (cameras.length == 0) {
-  //    println("There are no cameras available for capture.");
-  //    exit();
-  //  } else {
-  //    println("Available cameras:");
-  //    for (int i = 0; i < cameras.length; i++) 
-  //      println(cameras[i]);
+  //if (cameras.length == 0) {
+  //  println("There are no cameras available for capture.");
+  //  exit();
+  //} else {
+  //  println("Available cameras:");
+  //  for (int i = 0; i < cameras.length; i++) 
+  //    println(cameras[i]);
 
-  //    cam = new Capture(this, 640, 480, cameras[0]);
-  //    cam.start();
-
+  //  cam = new Capture(this, 320, 240, cameras[0]);
+  //  cam.start();
   //}
 
   //---------------------------------------------------------------------For Windows-----------------------------------------------------------------------------------------------------------//
@@ -73,11 +73,14 @@ void setup() {
     while (img.width> 700 || img.height>700)
       img.resize(img.width/2, img.height/2);
   }
-  imageIndex = 0;
+  imageIndex = 5;
   img = images.get(imageIndex);
-  surface.setSize(img.width * 3,img.height);
+  surface.setSize(img.width * 3, img.height);
 
   //noLoop();
+  if (twoBlobsMode) {
+    surface.setSize(width, height * 2);
+  }
 }
 void draw() {
 
@@ -88,7 +91,6 @@ void draw() {
     //  cam.read();
 
     //img = cam.get();
-    ///**Mac workaround**/    img.resize(640, 480);
 
     PImage img2 = img.copy();
 
@@ -108,18 +110,7 @@ void draw() {
     PImage imgConnected = findConnectedComponents(img2, true);                 // blob detection
     img2 = scharr(imgConnected);                                        // edge detection
     PImage imgThresholded = threshold(img2, 100);                               // Suppression of pixels with low brightness
-
-    if (twoBlobsMode) {
-      PImage img1 = img.copy();
-      img1 = thresholdHSB(img1, 20, 40, minS, maxS, minB, maxB);  // color thresholding
-      img1 = convolute(img1);                                      // gaussian blur     
-      img1 = findConnectedComponents(img1, true);                 // blob detection
-      //image(img1, img.width, img.height);
-      img = scharr(img);                                        // edge detection
-      img = threshold(img, 100 );                               // Suppression of pixels with low brightness
-      img1 = addImages(img2, img1, 10 );
-      image(img1, img.width, 0);
-    }
+    PImage imgBlob;
 
     List<PVector> quad = new ArrayList<PVector>();
     int nBestLines = 1;
@@ -128,12 +119,28 @@ void draw() {
     image(img, 0, 0);                        //draw original image
     draw_lines(hough, img2.width, img2.height);          // Hough transform (+ draw lines on canvas)
     PImage cropped = get(0, 0, img2.width, img2.height);
-    background(0);
+    //background(0);
     image(cropped, 0, 0);
     image(imgConnected, img2.width*2, 0);
     image(imgThresholded, img2.width, 0);
 
+    if (twoBlobsMode) {
+      imgBlob =img.copy();
+      imgBlob = thresholdHSB(imgBlob, 26, 30, minS, maxS, minB, maxB);  // color thresholding
+      imgBlob = convolute(imgBlob);                                      // gaussian blur     
+      imgBlob = findConnectedComponents(imgBlob, true);                 // blob detection
+      image(imgBlob, imgBlob.width * 2, imgBlob.height);
+      image(imgConnected, img2.width, img2.height);
+      imgBlob = addImages(imgBlob, imgConnected, 10);
+      //image(img1, img.width, img.height);
+      image(imgBlob, 0, imgBlob.height);
+      imgBlob = scharr(imgBlob);                                        // edge detection
+      imgBlob = threshold(imgBlob, 10);        // Suppression of pixels with low brightness
+      image(imgBlob, imgBlob.width*2, 0);
+      //image(img2, img.width*2, 0);
+    }
 
+    //image(img1, img.width, 0);
 
     do {
       quad = findBestQuad(hough, img2.width, img2.height, (int)((img2.height*0.9)*(img2.width*0.9)), (int)((img2.height*0.3)*(img2.width*0.3)), false);
@@ -147,6 +154,16 @@ void draw() {
       fill(color((i%4) *255, (i-1%4) *255, (i-2%4) *255, 100));      
       circle(quad.get(i).x, quad.get(i).y, 20);
     }
+    
+    if (help) {
+      fill(200, 200, 200, 100);
+      noStroke();
+      rect(0, 0, width, height, 15);
+      fill(200);
+      stroke(0);
+      rect(width/2 - 250, height/2 - 100, 500, 200, 15);
+      
+    }
   } 
   catch (Exception e ) {
     e.printStackTrace();
@@ -156,6 +173,24 @@ void draw() {
 
 // Used to iterate over the 6 images  
 void keyPressed() {
+
+  if (key == 'h') {
+    help = !help;
+  }
+
+  if (key == 'b') {
+    twoBlobsMode = !twoBlobsMode;
+    if (twoBlobsMode) {
+      surface.setSize(width, height * 2);
+    } else {
+      surface.setSize(width, height / 2);
+    }
+  }
+  if (twoBlobsMode) {
+    imageIndex = 5;
+    img = images.get(imageIndex);
+    return;
+  }
   if (key == CODED) {
     if (keyCode == LEFT && imageIndex > 0) {
       imageIndex--;
@@ -189,10 +224,10 @@ void keyPressed() {
   img = images.get(imageIndex);
   double newWidth = img.width * 3.0;
   double newImgHeight = img.height;
-  while(newWidth > Width) {    
+  while (newWidth > Width) {    
     newWidth *= 0.95;
     newImgHeight *= 0.95;
   }
-  surface.setSize(img.width * 3,img.height);
+  surface.setSize(img.width * 3, img.height);
   img.resize((int) (newWidth/3), (int) newImgHeight);
 }

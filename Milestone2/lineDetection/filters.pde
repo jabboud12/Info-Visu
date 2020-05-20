@@ -54,14 +54,14 @@ PImage addImages(PImage img0, PImage img1, int brightnessThreshold ) {
   for (int i = 0; i < img0.width * img0.height; i++) {
     if (brightness(img0.pixels[i]) >brightnessThreshold && brightness(img1.pixels[i]) <=brightnessThreshold) {
       //result.pixels[i] = img0.pixels[i];
-      result.pixels[i] = color(0,255,0);
+      result.pixels[i] = color(200,150,0);
     } else if (brightness(img0.pixels[i]) <=brightnessThreshold && brightness(img1.pixels[i]) >brightnessThreshold) {
       //result.pixels[i] = img1.pixels[i];
-      result.pixels[i] = color(255,255,0);
+      result.pixels[i] = color(0,80,80);
 
     } else if (brightness(img0.pixels[i]) >brightnessThreshold && brightness(img1.pixels[i]) >brightnessThreshold) {
       //result.pixels[i] = img0.pixels[i];
-      result.pixels[i] = color(0,255,0);
+      result.pixels[i] = color(200,150,0);
     } else {
       result.pixels[i]= color(0);
     }

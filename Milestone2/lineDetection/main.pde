@@ -11,7 +11,16 @@ boolean twoBlobsMode = false;
 boolean help = false;
 boolean cameraMode = false; //fixme correct resizing on camera mode
 final int nBestLinesPaddingThreshold = 0; //fixme set to 2 when using camera
-
+String [] titles = { "Board 1 -- Corner detection || Edge detection || HSB thresholding", 
+                       "Board 2 -- Corner detection || Edge detection || HSB thresholding",
+                       "Board 3 -- Corner detection || Edge detection || HSB thresholding",
+                       "Board 4 -- Corner detection || Edge detection || HSB thresholding",
+                       "Nao -- Corner detection || Edge detection || HSB thresholding",
+                       "Nao Blob -- Corner detection || Edge detection || HSB thresholding",
+                       "Help",
+                       "Two Blobs Mode ON -- Corner detection || Edge detection 1st Blob ||  Edge detection 2nd Blob ||" +
+                            " || HSB thresholding both blobs || HSB thresholding 1st blob || HSB thresholding 2nd blob",
+                         "Camera Mode -- Corner detection || Edge detection || HSB thresholding"}; //fixme
 
 //---------------------------------------------------------------------For Windows-----------------------------------------------------------------------------------------------------------//
 Capture cam;
@@ -49,7 +58,8 @@ void setup() {
   nao = loadImage("nao.jpg");
   nao_blob = loadImage("nao_blob.jpg");
 
-  PImage [] imagess = {board1, board2, board3, board4, nao, nao_blob};  
+  PImage [] imagess = {board1, board2, board3, board4, nao, nao_blob}; 
+  
   images = Arrays.asList(imagess);
 
   for (PImage img : images) {
@@ -154,7 +164,7 @@ void draw() {
       stroke(0);
       rect(width/2 - 170, height/2 - 60, 340, 120, 15);
       fill(0);
-      surface.setTitle("Help");
+      surface.setTitle(titles[6]);
       text(" - Use arrows or 1->6 to navigate between pictures ", width/2 - 160, height/2 - 25);
       text(" - Press B to enable/disable two blobs mode  ", width/2 - 160, height/2 -5 );
       text(" - Press C to enable/disable camera mode  ", width/2 - 160, height/2 + 15);
@@ -178,11 +188,13 @@ void keyPressed() {
     if (cameraMode) break;
     twoBlobsMode = !twoBlobsMode;
     if (twoBlobsMode) {
-      surface.setTitle("Two Blobs Mode ON -- Corner detection || Edge detection 1st Blob ||  Edge detection 2nd Blob ||" +
-        " || HSB thresholding both blobs || HSB thresholding 1st blob || HSB thresholding 2nd blob");
+      //surface.setTitle("Two Blobs Mode ON -- Corner detection || Edge detection 1st Blob ||  Edge detection 2nd Blob ||" +
+      //  //" || HSB thresholding both blobs || HSB thresholding 1st blob || HSB thresholding 2nd blob");
+              surface.setTitle(titles[7]);
+
       surface.setSize(width, images.get(5).height * 2);
     } else {
-      surface.setTitle("Nao Blob -- Corner detection || Edge detection || HSB thresholding");
+      //surface.setTitle("Nao Blob -- Corner detection || Edge detection || HSB thresholding");
 
       surface.setSize(width, height / 2);
     }
@@ -192,19 +204,28 @@ void keyPressed() {
     cameraMode = !cameraMode;
     if (cameraMode) {
       cam.start();
-      surface.setTitle("Camera Mode -- Corner detection || Edge detection || HSB thresholding");
+      //surface.setTitle("Camera Mode -- Corner detection || Edge detection || HSB thresholding");
+      surface.setTitle(titles[8]);
       surface.setSize(320*3, 240);
       //return; ??
     } else {
       cam.stop();
-      img = images.get(0);
-    surface.setTitle("Board 1 -- Corner detection || Edge detection || HSB thresholding");
+      //img = images.get(0);
+      //imageIndex=0;
+    //surface.setTitle("Board 1 -- Corner detection || Edge detection || HSB thresholding");
 
     }
     break;
   case 'H':
   case 'h':
     help = !help;
+    if (!help){
+      if (cameraMode)
+        surface.setTitle(titles[8]);
+      if (twoBlobsMode) 
+        surface.setTitle(titles[7]);
+    }
+    
     break;
   case 'Q':
   case 'q':
@@ -231,26 +252,27 @@ void keyPressed() {
   switch (key) {
   case '1' : 
     imageIndex = 0;
-    surface.setTitle("Board 1 -- Corner detection || Edge detection || HSB thresholding");
+    //surface.setTitle("Board 1 -- Corner detection || Edge detection || HSB thresholding");
+    
     break;
   case '2' : 
-    surface.setTitle("Board 2 -- Corner detection || Edge detection || HSB thresholding");
+    //surface.setTitle("Board 2 -- Corner detection || Edge detection || HSB thresholding");
     imageIndex = 1;
     break;
   case '3' : 
-    surface.setTitle("Board 3 -- Corner detection || Edge detection || HSB thresholding");
+    //surface.setTitle("Board 3 -- Corner detection || Edge detection || HSB thresholding");
     imageIndex = 2;
     break;
   case '4' : 
-    surface.setTitle("Board 4 -- Corner detection || Edge detection || HSB thresholding");
+    //surface.setTitle("Board 4 -- Corner detection || Edge detection || HSB thresholding");
     imageIndex = 3;
     break;
   case '5' : 
-    surface.setTitle("Nao -- Corner detection || Edge detection || HSB thresholding");
+    //surface.setTitle("Nao -- Corner detection || Edge detection || HSB thresholding");
     imageIndex = 4;
     break;
   case '6' : 
-    surface.setTitle("Nao Blob -- Corner detection || Edge detection || HSB thresholding");
+    //surface.setTitle("Nao Blob -- Corner detection || Edge detection || HSB thresholding");
     imageIndex = 5;
     break;
   default : 
@@ -258,6 +280,7 @@ void keyPressed() {
   }
 
   img = images.get(imageIndex);
+  surface.setTitle(titles[imageIndex]);
   double newWidth = img.width * 3.0;
   double newImgHeight = img.height;
   while (newWidth > Width) {    

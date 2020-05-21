@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 //fixme uncomment
-//class QuadGraph {
+class QuadGraph {
 
   boolean verbose=false;
   
@@ -368,7 +368,7 @@ import java.util.Map;
 
     return quad;
   }
-//}
+}
 
 class CWComparator implements Comparator<PVector> {
 

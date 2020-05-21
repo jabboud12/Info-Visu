@@ -6,12 +6,11 @@ final int Width = 1500;
 final int Height = 500;
 List<PImage> images;
 int imageIndex;
-//HScrollbar thresholdBar, thresholdBar1, thresholdBar2, thresholdBar3, thresholdBar4, thresholdBar5;
 
 boolean twoBlobsMode = false;
 boolean help = false;
 boolean cameraMode = false; //fixme correct resizing on camera mode
-final int nBestLinesPaddingThreshold = 7; //fixme set to 2 when using camera
+final int nBestLinesPaddingThreshold = 0; //fixme set to 2 when using camera
 
 
 //---------------------------------------------------------------------For Windows-----------------------------------------------------------------------------------------------------------//
@@ -83,6 +82,8 @@ void draw() {
 
     PImage img2 = img.copy();
 
+
+
     img2.loadPixels();
     img2.updatePixels();
 
@@ -110,7 +111,6 @@ void draw() {
     draw_lines(hough, img2.width, img2.height);          // Hough transform (+ draw lines on canvas)
 
     PImage cropped = get(0, 0, img2.width, img2.height);
-    //background(0);
     image(cropped, 0, 0);
     image(imgConnected, img2.width*2, 0);
     image(imgThresholded, img2.width, 0);
@@ -124,20 +124,19 @@ void draw() {
       image(imgBlob, imgBlob.width * 2, imgBlob.height);
       image(imgConnected, img2.width, img2.height);
       imgBlob = addImages(imgBlob, imgConnected, 10);
-      //image(img1, img.width, img.height);
       image(imgBlob, 0, imgBlob.height);
       imgBlob = scharr(imgBlob);                                        // edge detection
       imgBlob = threshold(imgBlob, 10);        // Suppression of pixels with low brightness
       image(imgBlob, imgBlob.width*2, 0);
-      //image(img2, img.width*2, 0);
     }
 
-
+      QuadGraph q = new QuadGraph();
     do {
-      quad = findBestQuad(hough, img2.width, img2.height, (int)((img2.height*0.9)*(img2.width*0.9)), (int)((img2.height*0.3)*(img2.width*0.3)), false);
+      quad = q.findBestQuad(hough, img2.width, img2.height, (int)((img2.height*0.9)*(img2.width*0.9)), (int)((img2.height*0.3)*(img2.width*0.3)), false);
+     
       hough = hough(img2, 8*nBestLines);
       ++nBestLines;
-    } while (quad.isEmpty() && nBestLines <2/*nBestLinesPaddingThreshold*/);
+    } while (quad.isEmpty() && nBestLines <nBestLinesPaddingThreshold);
 
     stroke(0);
     //draw corner circles
@@ -160,6 +159,8 @@ void draw() {
       text(" - Press B to enable/disable two blobs mode  ", width/2 - 160, height/2 -5 );
       text(" - Press C to enable/disable camera mode  ", width/2 - 160, height/2 + 15);
       text(" - Press H to enable/disable help menu  ", width/2 - 160, height/2 + 35);
+      //text(" - Press Q to quit  ", width/2 - 160, height/2 + 55);
+
     }
   } 
   catch (Exception e ) {
@@ -177,8 +178,8 @@ void keyPressed() {
     if (cameraMode) break;
     twoBlobsMode = !twoBlobsMode;
     if (twoBlobsMode) {
-      surface.setTitle("Two Blobs Mode ON -- Corner detection || Edge detection 1st Blob||  Edge detection 1st Blob ||" +
-        "|| HSB thresholding both blobs || HSB thresholding 1st blob || HSB thresholding 2nd blob");
+      surface.setTitle("Two Blobs Mode ON -- Corner detection || Edge detection 1st Blob ||  Edge detection 2nd Blob ||" +
+        " || HSB thresholding both blobs || HSB thresholding 1st blob || HSB thresholding 2nd blob");
       surface.setSize(width, images.get(5).height * 2);
     } else {
       surface.setTitle("Nao Blob -- Corner detection || Edge detection || HSB thresholding");
@@ -196,6 +197,9 @@ void keyPressed() {
       //return; ??
     } else {
       cam.stop();
+      img = images.get(0);
+    surface.setTitle("Board 1 -- Corner detection || Edge detection || HSB thresholding");
+
     }
     break;
   case 'H':
@@ -204,7 +208,7 @@ void keyPressed() {
     break;
   case 'Q':
   case 'q':
-  println("Exiting normally");
+    println("Exiting normally");
     exit();
     break;
   default :
@@ -261,5 +265,6 @@ void keyPressed() {
     newImgHeight *= 0.95;
   }
   surface.setSize(img.width * 3, img.height);
-  img.resize((int) (newWidth/3), (int) newImgHeight);
+    img.resize((int) (newWidth/3), (int) newImgHeight);
+
 }

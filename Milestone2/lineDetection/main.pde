@@ -63,8 +63,15 @@ void setup() {
   images = Arrays.asList(imagess);
 
   for (PImage img : images) {
-    while (img.width> 700 || img.height>700)
-      img.resize(img.width/2, img.height/2);
+    double newWidth = img.width * 3.0;
+  double newImgHeight = img.height;
+  while (newWidth > Width) {    
+    newWidth *= 0.95;
+    newImgHeight *= 0.95;
+  }
+    img.resize((int) (newWidth/3), (int) newImgHeight);
+    //while (img.width> 700 || img.height>700)
+      //img.resize(img.width/2, img.height/2);
   }
   imageIndex = 0;
   surface.setTitle("Board 1 -- Corner detection || Edge detection || HSB thresholding");

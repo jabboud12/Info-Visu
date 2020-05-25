@@ -28,11 +28,9 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest) {
 
         for (int i=-1; i<2; ++i) {
           for (int j = -1; j<2; ++j) {
-            //if (((y+j) * input.width + x + i >=0) && ((y+j) * input.width + x + i < input.height*input.width)) {
-              if (brightness(input.pixels[(y+j) * input.width + x + i ])>=threshold && labels[(y+j) * input.width + x + i]!=0) {
-                neighbors.add(labels[((y+j)* input.width + x + i)]);
-              }
-            //}
+            if (brightness(input.pixels[(y+j) * input.width + x + i ])>=threshold && labels[(y+j) * input.width + x + i]!=0) {
+              neighbors.add(labels[((y+j)* input.width + x + i)]);
+            }
           }
         }
 
@@ -65,10 +63,7 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest) {
   //if onlyBiggest==true, counts the number of pixels for each label
 
   int labelCount[] = new int[currentLabel+1];
-  //for (int i = 0; i<labelCount.length; ++i) {
-  //    labelCount[i] = 0;
-  //  }
-
+  
   for (int x = 0; x < input.width; ++x) {
     for (int y = 0; y < input.height; ++y) {
 
@@ -96,7 +91,7 @@ PImage findConnectedComponents(PImage input, boolean onlyBiggest) {
     for (int x = 0; x < input.width; ++x) {
       res.pixels[y*input.width+x] = labels[y*input.width+x];
       if (onlyBiggest) {
-        res.pixels[y*input.width+x] = ((res.pixels[y*input.width+x] == maxLabel) ?  color(0,80,80): color(0)) ;
+        res.pixels[y*input.width+x] = ((res.pixels[y*input.width+x] == maxLabel) ?  color(0, 80, 80): color(0)) ;
       } else {    //fixme !!!
         if (res.pixels[y*input.width+x]%7 == 1)  res.pixels[y*input.width+x] = color(123);
         if (res.pixels[y*input.width+x]%7 == 2)  res.pixels[y*input.width+x] = color(255, 0, 0);

@@ -1,20 +1,20 @@
-import java.util.Collections;
+import java.util.Collections; //<>//
 import java.util.Comparator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
-//fixme uncomment
+
 class QuadGraph {
 
   boolean verbose=false;
-  
+
   List<int[]> cycles = new ArrayList<int[]>();
   int[][] graph;
 
   List<PVector> findBestQuad(List<PVector> lines, int width, int height, int max_quad_area, int min_quad_area, boolean verbose) {
     this.verbose=verbose;
-    build(lines, width, height); //<>//
+    build(lines, width, height);
     findCycles(verbose);
     ArrayList<PVector> bestQuad=new ArrayList<PVector>();
     float bestQuadArea=0;
@@ -96,7 +96,7 @@ class QuadGraph {
     else
       return false;
   }
-  
+
   PVector intersection(PVector line1, PVector line2) {
 
     double sin_t1 = Math.sin(line1.y);
@@ -111,7 +111,7 @@ class QuadGraph {
     int x = (int) ((r2 * sin_t1 - r1 * sin_t2) / denom);
     int y = (int) ((-r2 * cos_t1 + r1 * cos_t2) / denom);
 
-    return new PVector(x,y);
+    return new PVector(x, y);
   }
 
   void findCycles(boolean verbose) {
@@ -164,7 +164,7 @@ class QuadGraph {
         }
   }
 
-  //  check of both arrays have same lengths and contents
+  //  Check if both arrays have same lengths and contents
   Boolean equals(int[] a, int[] b)
   {
     Boolean ret = (a[0] == b[0]) && (a.length == b.length);
@@ -180,7 +180,7 @@ class QuadGraph {
     return ret;
   }
 
-  //  create a path array with reversed order
+  //  Create a path array with reversed order
   int[] invert(int[] path)
   {
     int[] p = new int[path.length];
@@ -193,7 +193,7 @@ class QuadGraph {
     return normalize(p);
   }
 
-  //  rotate cycle path such that it begins with the smallest node
+  //  Rotate cycle path such that it begins with the smallest node
   int[] normalize(int[] path)
   {
     int[] p = new int[path.length];
@@ -212,8 +212,8 @@ class QuadGraph {
     return p;
   }
 
-  //  compare path against known cycles
-  //  return true, iff path is not a known cycle
+  //  Compare path against known cycles,
+  //  return true iff path is not a known cycle
   Boolean isNew(int[] path)
   {
     Boolean ret = true;
@@ -230,7 +230,7 @@ class QuadGraph {
     return ret;
   }
 
-  //  return the int of the array which is the smallest
+  //  Return the int of the array which is the smallest
   int smallest(int[] path)
   {
     int min = path[0];
@@ -246,7 +246,7 @@ class QuadGraph {
     return min;
   }
 
-  //  check if vertex n is contained in path
+  //  Check if vertex n is contained in path
   Boolean visited(int n, int[] path)
   {
     Boolean ret = false;
@@ -291,7 +291,7 @@ class QuadGraph {
     if (   (i1>0 && i2>0 && i3>0 && i4>0) 
       || (i1<0 && i2<0 && i3<0 && i4<0))
       return true;
-    else if(verbose)
+    else if (verbose)
       System.out.println("Eliminating non-convex quad");
     return false;
   }
@@ -307,20 +307,18 @@ class QuadGraph {
 
     float area = Math.abs(0.5f * (i1 + i2 + i3 + i4));
 
-    
-    if (area < max_area && area > min_area){
+
+    if (area < max_area && area > min_area) {
       return area;
     }
     return 0;
-    
-   }
+  }
 
   /** Compute the (cosine) of the four angles of the quad, and check they are all large enough
    * (the quad representing our board should be close to a rectangle)
    */
   boolean nonFlatQuad(PVector c1, PVector c2, PVector c3, PVector c4) {
 
-    // cos(70deg) ~= 0.3
     float min_cos = 0.5f;
 
     PVector v21= PVector.sub(c1, c2);
@@ -336,7 +334,7 @@ class QuadGraph {
     if (cos1 < min_cos && cos2 < min_cos && cos3 < min_cos && cos4 < min_cos)
       return true;
     else {
-      if(verbose)
+      if (verbose)
         System.out.println("Flat quad");
       return false;
     }

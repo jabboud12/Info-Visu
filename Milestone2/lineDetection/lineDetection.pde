@@ -11,9 +11,7 @@ List<PVector> hough(PImage edgeImg, int n) throws Exception {
 
   float discretizationStepsPhi = 0.02f; 
   float discretizationStepsR = 2.5f; 
-  //int minVotes=500;
   int minVotes = Math.min(edgeImg.width/4, edgeImg.height/4);
-  // define region size
   int regionSize = Math.min(edgeImg.width/40, edgeImg.height/40);
 
 
@@ -127,10 +125,6 @@ boolean checkMaxNeighbor(int[] accumulator, int idx, int regionSize, int phiDim)
   return true;
 }
 
-
-
-
-
 void draw_lines(List<PVector> lines, int imageWidth, int imageHeight) {
   int x0 = 0;
   int y1 = 0;
@@ -147,7 +141,7 @@ void draw_lines(List<PVector> lines, int imageWidth, int imageHeight) {
     // => x = 0 : y = r / sin(phi)
     // compute the intersection of this line with the 4 borders of
     // the image
-    
+
     int y0 = (int) (r / sin(phi));
     int x1 = (int) (r / cos(phi));
     int y2 = (int) (-cos(phi) / sin(phi) * x2 + r / sin(phi));
@@ -172,7 +166,7 @@ void draw_lines(List<PVector> lines, int imageWidth, int imageHeight) {
         if (y2 > 0)
           line(x1, y1, x2, y2);
         else 
-          line(x1, y1, x3, y3);
+        line(x1, y1, x3, y3);
       } else
         line(x2, y2, x3, y3);
     }

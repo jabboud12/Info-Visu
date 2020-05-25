@@ -31,11 +31,10 @@ PImage thresholdHSB(PImage img, int minH, int maxH, int minS, int maxS, int minB
   return result;
 }
 
+// Not used in our program, but could be useful to detect two different objects
 PImage doubleThresholdHSB(PImage img, int minH0, int maxH0, int minH1, int maxH1, int minS, int maxS, int minB, int maxB) {
   PImage result = createImage(img.width, img.height, HSB);
   result = img.copy();
-
-
 
   for (int i = 0; i < img.width * img.height; i++) {
     if (!(((hue(img.pixels[i]) >= minH0 && hue(img.pixels[i]) <= maxH0) || (hue(img.pixels[i]) >= minH1 && hue(img.pixels[i]) <= maxH1)) && saturation(img.pixels[i]) >= minS && saturation(img.pixels[i]) <= maxS 
@@ -54,14 +53,13 @@ PImage addImages(PImage img0, PImage img1, int brightnessThreshold ) {
   for (int i = 0; i < img0.width * img0.height; i++) {
     if (brightness(img0.pixels[i]) >brightnessThreshold && brightness(img1.pixels[i]) <=brightnessThreshold) {
       //result.pixels[i] = img0.pixels[i];
-      result.pixels[i] = color(200,150,0);
+      result.pixels[i] = color(200, 150, 0);
     } else if (brightness(img0.pixels[i]) <=brightnessThreshold && brightness(img1.pixels[i]) >brightnessThreshold) {
       //result.pixels[i] = img1.pixels[i];
-      result.pixels[i] = color(0,80,80);
-
+      result.pixels[i] = color(0, 80, 80);
     } else if (brightness(img0.pixels[i]) >brightnessThreshold && brightness(img1.pixels[i]) >brightnessThreshold) {
       //result.pixels[i] = img0.pixels[i];
-      result.pixels[i] = color(200,150,0);
+      result.pixels[i] = color(200, 150, 0);
     } else {
       result.pixels[i]= color(0);
     }

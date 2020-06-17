@@ -28,7 +28,7 @@ class ParticleSystem {
     for (int i = 0; i< particles.size(); ++i) {
       if (particles.get(i).isDead()) {
         particles.remove(i);
-      } else{
+      } else {
         particles.get(i).run();
       }
     }
@@ -69,7 +69,7 @@ class Particle {
       strokeWeight(radius);
       stroke(c);
       //ellipse(center.x, center.y, radius, radius);
-      point(center.x,center.y,  center.z);
+      point(center.x, center.y, center.z);
       //noFill();
     }
   }

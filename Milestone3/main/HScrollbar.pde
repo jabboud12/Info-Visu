@@ -30,6 +30,22 @@ class HScrollbar {
     sliderPositionMin = xPosition;
     sliderPositionMax = xPosition + barWidth - barHeight;
   }
+  HScrollbar (float x, float y, float w, float h, float sliderPosition) {
+    barWidth = w;
+    barHeight = h;
+    xPosition = x;
+    yPosition = y;
+    
+    //sliderPosition = xPosition + barWidth/2 - barHeight/2;
+    //newSliderPosition = sliderPosition/255 + barWidth/2 - barHeight/2;
+    newSliderPosition = sliderPosition*(barWidth - barHeight)/255 + xPosition ;
+      
+
+
+    
+    sliderPositionMin = xPosition;
+    sliderPositionMax = xPosition + barWidth - barHeight;
+  }
 
   /**
    * @brief Updates the state of the scrollbar according to the mouse movement

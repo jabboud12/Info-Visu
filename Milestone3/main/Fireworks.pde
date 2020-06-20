@@ -20,11 +20,11 @@ class ParticleSystem {
   void addParticle() {
     if (particles.size() < 100)
       particles.add(new Particle(origin, particleColor, particleRadius));
-    System.out.println(particles.size());
+    //System.out.println(particles.size());
   }
 
   void run() {
-    println(particles.size());
+    //println(particles.size());
     for (int i = 0; i< particles.size(); ++i) {
       if (particles.get(i).isDead()) {
         particles.remove(i);

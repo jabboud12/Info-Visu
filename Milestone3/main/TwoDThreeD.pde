@@ -83,7 +83,7 @@ class TwoDThreeD {
   PVector get3DRotations(List<PVector> points2D) {
 
     // 1- Solve the extrinsic matrix from the projected 2D points
-    double[][] E = solveExtrinsicMatrix(points2D);
+    double[][] E = solveExtrinsicMatrix(points2D); //<>//
 
 
     // 2 - Re-build a proper 3x3 rotation matrix from the camera's

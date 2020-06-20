@@ -4,7 +4,7 @@ final float mu = 0.01;
 final float elasticity = 0.75;
 
 
-class MovingBall {
+class MovingBall{
 
   PVector location;
   PVector velocity;
@@ -32,13 +32,12 @@ class MovingBall {
   float prevZ =0;
 
 
-
-  PImage pattern = loadImage("stripes.jpg"); 
   PShape globe;
 
 
   // ---- CONSTRUCTOR ------------------------------------------------------
   MovingBall() {
+    pattern = loadImage("stripes.jpg");
     location = new PVector(0, 0, 0);
     velocity = new PVector(0, 0, 0);
     gravityForce = new PVector(0, 0, 0);
@@ -158,7 +157,7 @@ class MovingBall {
         PVector n = new PVector(c.x - location.x, 0, -c.y - location.z).normalize(); //fixme
         n = n.mult(2*velocity.dot(n));
         velocity.sub(n);
-        //increaseScore(velocity.mag());
+        increaseScore(velocity.mag());
       }
     }
   }

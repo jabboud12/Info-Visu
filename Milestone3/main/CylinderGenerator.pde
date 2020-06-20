@@ -126,7 +126,7 @@ class CylinderGenerator {
       // TODO : i dont understant why it doesn t work wtith isInside uncommented ?
       if (plate.isInside(new_cylinder) /* && new_cylinder.isInside(ball)*/ && noCylinderCollision) {
         cylinders.add(new_cylinder);
-        //decreaseScore();
+        decreaseScore();
         break;
       }
     }

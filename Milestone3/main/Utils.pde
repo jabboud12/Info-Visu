@@ -29,6 +29,14 @@ static float vect_norm(float ... x) {
   return sum;
 }
 
+void reset() {
+  ball = new MovingBall();
+  generator = new CylinderGenerator();
+  rotationX = 0;
+  rotationZ = 0;
+  speed = 1;
+}
+
 
    
    

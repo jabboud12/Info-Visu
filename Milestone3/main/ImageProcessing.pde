@@ -1,6 +1,46 @@
-import processing.video.*;
+import processing.video.*; //<>// //<>//
 import gab.opencv.*;
 import java.util.Arrays;
+
+PGraphics gameSurface;
+PGraphics background;
+PGraphics topView;
+PGraphics scoreboard;
+PGraphics barChart;
+HScrollbar hs;
+ArrayList<Integer> points = new ArrayList<Integer>();
+
+PImage pattern; 
+
+int padding = 5;
+int bottomTab = 200;
+int topViewDim = bottomTab-2*padding;
+
+// simulation preferences
+private boolean drawAxis = false;
+private boolean change_ball_color = false;
+private boolean shiftMode = false;
+
+//score
+private float score = 0;
+private float lastHit = 0;
+private int secs = 0;
+
+
+//translated mouse coordinates
+float mx, my;
+
+// rotation settings
+float rotationX = 0;
+float rotationZ = 0;
+float speed = 1;
+
+// MODEL
+CylinderGenerator generator;
+MovingBall ball;
+Plate plate;
+
+Movie mov;
 
 PImage img, board1, board2, board3, board4, nao, nao_blob, imgCheck;
 final int Width = 1500;
@@ -9,11 +49,11 @@ List<PImage> images;
 int imageIndex;
 
 boolean twoBlobsMode = false; // Enable and disable blob detection mode for an item on the board
-boolean help = false; // Enable and disable help mode
+boolean help = true; // Enable and disable help mode
 boolean cameraMode = false; //fixme correct resizing on camera mode
 
 // Maium number of lines allowed for the edges of the board
-final int nBestLinesPaddingThreshold = 0; 
+final int nBestLinesPaddingThreshold = 2; 
 
 // The structure of titles is: Original image -- Detection mode || Edge detection ... (each || ... || is an image displayed by order)
 String [] titles = { "Board 1 -- Corner detection || Edge detection || HSB thresholding", 
@@ -31,283 +71,199 @@ String [] titles = { "Board 1 -- Corner detection || Edge detection || HSB thres
 double widthFactor = 0.9;
 double heightFactor = 0.9;
 
+PVector vectRot = new PVector(0, 0, 0);
+List<PVector> quad = new ArrayList<PVector>();
+List<PVector> corners = new ArrayList<PVector>();
+
+List<PVector> hough;
+
 Capture cam;
 
 OpenCV opencv;
 
 TwoDThreeD rot;
 
-class ImageProcessing extends PApplet {
+//ImageProcessing improc;
 
-  void settings() {
-    size(Width, Height);
-    //fullScreen();
-    if (surface != null)
-      surface.setResizable(true);
+KalmanFilter2D corner1;
+KalmanFilter2D corner2;
+KalmanFilter2D corner3;
+KalmanFilter2D corner4;
+
+
+// Parameters for HSB thresholding
+int minH = 47;   //47
+int maxH = 142; //142
+int minS = 30;  //68
+int maxS = 255; //255
+int minB = 28;   //28
+int maxB = 168; //168
+
+// pre-compute the sin and cos values
+float[] tabSin; 
+float[] tabCos;
+float ang;
+float inverseR;
+
+HScrollbar hm;
+HScrollbar bm;
+HScrollbar sm;
+HScrollbar h;
+HScrollbar b;
+HScrollbar s;
+
+//class ImageProcessing extends PApplet {
+void settings() {
+  size(960, 540);
+}
+
+void setup() {
+  // pre-compute the sin and cos values
+  tabSin = new float[phiDim]; 
+  tabCos = new float[phiDim];
+  ang = 0;
+  inverseR = 1.f / discretizationStepsR;
+  for (int accPhi = 0; accPhi < phiDim; ang += discretizationStepsPhi, accPhi++) {
+    // we can also pre-multiply by (1/discretizationStepsR) since we need it in the Hough loop 
+    tabSin[accPhi] = (float) (Math.sin(ang) * inverseR);
+    tabCos[accPhi] = (float) (Math.cos(ang) * inverseR);
   }
 
+  opencv = new OpenCV(this, 100, 100);
+  rot = new TwoDThreeD(width, height, 0);
 
-  void setup() {
+  corner1 = new KalmanFilter2D(1, 2);
+  corner2 = new KalmanFilter2D(1, 2);
+  corner3 = new KalmanFilter2D(1, 2);
+  corner4 = new KalmanFilter2D(1, 2);
 
-    opencv = new OpenCV(this, 100, 100);
+  mov = new Movie(this, "testvideo.avi");
+  mov.loop();
+  mov.volume(0);
+  //mov.speed(0.1);
 
-    // Enable the camera
-    String[] cameras = Capture.list();
+  b = new HScrollbar(0, height - 100, width, 10, minB/255 * width);
+  bm = new HScrollbar(0, height - 100, width, 10, minB);
+  h = new HScrollbar(0, height - 100, width, 10, minB);
+  hm = new HScrollbar(0, height - 100, width, 10, minB);
+  s = new HScrollbar(0, height - 100, width, 10, minB);
+  sm = new HScrollbar(0, height - 100, width, 10, minB);
+}
 
-    if (cameras.length == 0) {
-      println("There are no cameras available for capture.");
-      exit();
-    } else {
-      println("Available cameras:");
-      for (int i = 0; i < cameras.length; i++) 
-        println(cameras[i]);
-
-      cam = new Capture(this, 320, 240, cameras[0]);
-      //cam.start();
+void draw() {
+  background(200);
+  try {
+    if (mov.available() == true) {
+      mov.read();
     }
+    img = mov.get();
+    img.resize(320, 180);
+    image(img, 0, 0);
 
-    // Load images and store them in an array
-    board1 = loadImage("board1.jpg");
-    board2 = loadImage("board2.jpg");
-    board3 = loadImage("board3.jpg");
-    board4 = loadImage("board4.jpg");
-    nao = loadImage("nao.jpg");
-    nao_blob = loadImage("nao_blob.jpg");
+    b.update();
+    b.display();
+    text("minB = " + (int) (b.getPos() * 255), 50, height -150);
+    //if (frameCount % 50 == 0 || frameCount == 1) {
 
-    PImage [] imagess = {board1, board2, board3, board4, nao, nao_blob}; 
+    img = thresholdHSB(img, minH, maxH, minS, maxS, (int) (b.getPos() * 255), maxB);  // color thresholding
+    img = convolute(img);       // gaussian blur   
+    image(img, 0, img.height);
 
-    images = Arrays.asList(imagess);
+    img = findConnectedComponents(img, true);                // blob detection
+    image(img, img.width, 0);
+    img = scharr(img);                                        // edge detection
+    image(img, img.width*2, 0);
+    img = threshold(img, 100);                               // Suppression of pixels with low brightness
 
-    // Set the size of the image according to the screen's dimensions (just an aesthetic addition, to keep the images' dimensions proportional)
-    for (PImage img : images) {
-      double newWidth = img.width * 3.0;
-      double newImgHeight = img.height;
-      while (newWidth > Width) {
-        newWidth *= widthFactor;
-        newImgHeight *= heightFactor;
-      }
-      img.resize((int) (newWidth/3), (int) newImgHeight);
+
+    int nBestLines = 1;
+    //hough = hough(img, 1);
+
+    QuadGraph q = new QuadGraph();
+    do {
+      hough = hough(img, 4*nBestLines);
+      quad = q.findBestQuad(hough, img.width, img.height, (int)((img.height*0.9)*(img.width*0.9)), (int)((img.height*0.2)*(img.width*0.2)), false);
+      corners = new ArrayList(quad);
+
+      ++nBestLines;
+    } while (quad.isEmpty() && nBestLines < nBestLinesPaddingThreshold);
+    if (!quad.isEmpty()) {
+      corners = new ArrayList(quad);
     }
+    //} else if (corners.size() == 4) {
+    //  corners.set(0, corner1.predict_and_correct(corners.get(0)));
+    //  corners.set(1, corner2.predict_and_correct(corners.get(1)));
+    //  corners.set(2, corner3.predict_and_correct(corners.get(2)));
+    //  corners.set(3, corner4.predict_and_correct(corners.get(3)));
+    //}
 
-    // Start with the first image, board1.jpg
-    imageIndex = 0;
-    surface.setTitle("Board 1 -- Corner detection || Edge detection || HSB thresholding");
-    img = images.get(imageIndex);
-    surface.setSize(img.width * 3, img.height);
+    //draw_lines(hough, img.width, img.height);          // Hough transform (+ draw lines on canvas)
 
-    rot = new TwoDThreeD(img.width, img.height, 0);
-
-    if (twoBlobsMode) {
-      surface.setSize(width, height * 2);
-    }
-
-    imgproc = new ImageProcessing();
-    String []args = {"Image processing window"};
-    PApplet.runSketch(args, imgproc);
-
-    testim = new test();
-    String []argss = {"test window"};
-    //PApplet.runSketch(argss, testim);
-  }
-
-
-
-  void draw() {
-
-    try {
-      background(0);
-      if (cameraMode) {
-        if (cam.available() == true) 
-          cam.read();
-
-        img = cam.get();
-      }
-
-      PImage img2 = img.copy();
-
-      img2.loadPixels();
-      img2.updatePixels();
-
-      // Optimal for all
-      int minH = 47;
-      int maxH = 142;
-      int minS = 68;
-      int maxS = 255;
-      int minB = 28;
-      int maxB = 168;
-
-      img2 = thresholdHSB(img2, minH, maxH, minS, maxS, minB, maxB);  // color thresholding
-      img2 = convolute(img2);                                      // gaussian blur     
-      PImage imgConnected = findConnectedComponents(img2, true);                 // blob detection
-      img2 = scharr(imgConnected);                                        // edge detection
-      PImage imgThresholded = threshold(img2, 100);                               // Suppression of pixels with low brightness
-      PImage imgBlob;
-
-      List<PVector> quad = new ArrayList<PVector>();
-      int nBestLines = 1;
-      List<PVector> hough = hough(imgThresholded, 8*nBestLines);
-
-
-      image(img, 0, 0);                        //draw original image
-      draw_lines(hough, img2.width, img2.height);          // Hough transform (+ draw lines on canvas)
-
-      PImage cropped = get(0, 0, img2.width, img2.height);
-      image(cropped, 0, 0);
-      image(imgConnected, img2.width*2, 0);
-      image(imgThresholded, img2.width, 0);
-
-
-      if (twoBlobsMode) {
-        imgBlob =img.copy();
-        imgBlob = thresholdHSB(imgBlob, 26, 30, minS, maxS, minB, maxB);  // color thresholding
-        imgBlob = convolute(imgBlob);                                      // gaussian blur     
-        imgBlob = findConnectedComponents(imgBlob, true);                 // blob detection
-        image(imgBlob, imgBlob.width * 2, imgBlob.height);
-        image(imgConnected, img2.width, img2.height);
-        imgBlob = addImages(imgBlob, imgConnected, 10);
-        image(imgBlob, 0, imgBlob.height);
-        imgBlob = scharr(imgBlob);                                        // edge detection
-        imgBlob = threshold(imgBlob, 10);        // Suppression of pixels with low brightness
-        image(imgBlob, imgBlob.width*2, 0);
-      }
-
-      QuadGraph q = new QuadGraph();
-      do {
-        quad = q.findBestQuad(hough, img2.width, img2.height, (int)((img2.height*0.9)*(img2.width*0.9)), (int)((img2.height*0.3)*(img2.width*0.3)), false);
-        for (PVector point : quad) {
-          point.z = 1;
-        }
-        PVector vect = rot.get3DRotations(quad);
-        text((int) ((vect.x * 180.0) / Math.PI) - 180, width/2 - 160, height/2 - 25);
-        text((int) ((vect.y * 180.0) / Math.PI), width/2 - 160, height/2 -5 );
-        text((int) ((vect.z * 180.0) / Math.PI), width/2 - 160, height/2 + 15);
-        hough = hough(img2, 8*nBestLines);
-        ++nBestLines;
-      } while (quad.isEmpty() && nBestLines < nBestLinesPaddingThreshold);
-
-      stroke(0);
-      //draw corner circles
-      for (int i = 0; i<quad.size(); ++i) {
-        fill(color((i%4) *255, (i-1%4) *255, (i-2%4) *255, 100));      
-        circle(quad.get(i).x, quad.get(i).y, 20);
-      }
-
-      // Popup bubble that will give the different keys to use in order to navigate between pictures and modes
-      if (help) {
-        // First create a translucid rectangle to show that help mode is activated
-        fill(200, 200, 200, 100);
-        noStroke();
-        rect(0, 0, width, height);
-        // The second rectangle is the bubble where the information is written
-        fill(200);
-        stroke(0);
-        rect(width/2 - 170, height/2 - 50, 340, 120, 15);
-        fill(0);
-        surface.setTitle(titles[6]);
-        // Instructions
-        text(" - Use arrows or 1->6 to navigate between pictures ", width/2 - 160, height/2 - 25);
-        text(" - Press B to enable/disable two blobs mode  ", width/2 - 160, height/2 -5 );
-        text(" - Press C to enable/disable camera mode  ", width/2 - 160, height/2 + 15);
-        text(" - Press H to enable/disable help menu  ", width/2 - 160, height/2 + 35);
-        text(" - Press Q to quit  ", width/2 - 160, height/2 + 55);
-      }
-    } 
-    catch (Exception e ) {
-      e.printStackTrace();
-      exit();//remove
-    }
-  }
-
-  // Take care of different key events
-  void keyPressed() {
-    switch(key) {
-    case 'b':
-      if (cameraMode) break;
-      twoBlobsMode = !twoBlobsMode;
-      if (twoBlobsMode) {
-        surface.setTitle(titles[7]);
-
-        surface.setSize(width, images.get(5).height * 2);
-      } else {
-        surface.setSize(width, height / 2);
-      }
-      break;
-    case 'c': // Enable camera mode
-      cameraMode = !cameraMode;
-      if (cameraMode) {
-        cam.start();
-        surface.setTitle(titles[8]);
-        surface.setSize(320*3, 240);
-      } else {
-        cam.stop();
-      }
-      break;
-    case 'h': // Enable help mode
-      help = !help;
-      if (!help) {
-        if (cameraMode)
-          surface.setTitle(titles[8]);
-        if (twoBlobsMode) 
-          surface.setTitle(titles[7]);
-      }
-
-      break;
-    case 'q':
-      println("Exiting normally");
-      exit();
-      break;
-    default :
-      break;
-    }
-    if (cameraMode) return;
-    if (twoBlobsMode) {
-      imageIndex = 5;
-      img = images.get(imageIndex);
-      surface.setSize(img.width*3, height);
-      return;
-    }
-    if (key == CODED) {
-      if (keyCode == LEFT && imageIndex > 0) {
-        imageIndex--;
-      } else if (keyCode == RIGHT && imageIndex < 5) {
-        imageIndex++;
-      }
-    }
-
-    // Switch images with differents number keys pressed
-    switch (key) {
-    case '1' : 
-      imageIndex = 0;
-      break;
-    case '2' :
-      imageIndex = 1;
-      break;
-    case '3' :
-      imageIndex = 2;
-      break;
-    case '4' :
-      imageIndex = 3;
-      break;
-    case '5' :
-      imageIndex = 4;
-      break;
-    case '6' :
-      imageIndex = 5;
-      break;
-    default : 
-      break;
-    }
-
-    // After determining the current mode and current image, fetch the image and resize it and the window accordingly
-    img = images.get(imageIndex);
-    surface.setTitle(titles[imageIndex]);
-    double newWidth = img.width * 3.0;
-    double newImgHeight = img.height;
-    while (newWidth > Width) {    
-      newWidth *= widthFactor;
-      newImgHeight *= heightFactor;
-    }
-    surface.setSize(img.width * 3, img.height);
-    img.resize((int) (newWidth/3), (int) newImgHeight);
+    //stroke(0);
+    ////draw corner circles
+    //if (corners.size() != 0) {
+    //  for (int i = 0; i<corners.size(); ++i) {
+    //    fill(color((i%4) *255, (i-1%4) *255, (i-2%4) *255, 100));      
+    //    circle(corners.get(i).x, corners.get(i).y, 20);
+    //  }
+    //  for (PVector corner : corners) {
+    //    corner.z = 1;
+    //  }
+    //  vectRot = rot.get3DRotations(corners);
+    //}
+  } 
+  catch (Exception e ) {
+    e.printStackTrace();
+    exit();//remove
   }
 }
+
+
+void draw_lines(List<PVector> lines, int imageWidth, int imageHeight) {
+  int x0 = 0;
+  int y1 = 0;
+  int x2 = imageWidth;
+  int y3 = imageWidth;
+  for (int idx = 0; idx < lines.size(); idx++) {
+    PVector line=lines.get(idx);
+    float r = line.x;
+    float phi = line.y;
+    //println("r = " + r + "phi = " + phi);
+    // Cartesian equation of a line: y = ax + b
+    // in polar, y = (-cos(phi)/sin(phi))x + (r/sin(phi))
+    // => y = 0 : x = r / cos(phi)
+    // => x = 0 : y = r / sin(phi)
+    // compute the intersection of this line with the 4 borders of
+    // the image
+
+    int y0 = (int) (r / sin(phi));
+    int x1 = (int) (r / cos(phi));
+    int y2 = (int) (-cos(phi) / sin(phi) * x2 + r / sin(phi));
+    int x3 = (int) (-(y3 - r / sin(phi)) * (sin(phi) / cos(phi)));
+
+    //println("x0 = " + x0 + " y0 = " + y0);
+    //println("x1 = " + x1 + " y1 = " + y1);
+    //println("x2 = " + x2 + " y2 = " + y2);
+    //println("x3 = " + x3 + " y3 = " + y3);
+
+    // Finally, plot the lines
+    stroke(204, 102, 0);
+    if (y0 > 0) {
+      if (x1 > 0)
+        line(x0, y0, x1, y1);
+      else if (y2 > 0)
+        line(x0, y0, x2, y2);
+      else
+        line(x0, y0, x3, y3);
+    } else {
+      if (x1 > 0) {
+        if (y2 > 0)
+          line(x1, y1, x2, y2);
+        else 
+        line(x1, y1, x3, y3);
+      } else
+        line(x2, y2, x3, y3);
+    }
+  }
+}
+//}
